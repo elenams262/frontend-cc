@@ -35,7 +35,7 @@ const ActivateAccount = () => {
         setLoading(true);
 
         try {
-            const res = await axios.post('${API_URL}/api/auth/claim-account', {
+            const res = await axios.post(`${API_URL}/api/auth/claim-account`, {
                 email: formData.email,
                 code: formData.code.toUpperCase(), // Asegurar mayúsculas
                 password: formData.password

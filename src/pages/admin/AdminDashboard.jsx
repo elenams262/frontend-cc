@@ -19,8 +19,8 @@ const AdminDashboard = () => {
         const fetchStats = async () => {
             try {
                 const [statsRes, activityRes] = await Promise.all([
-                    axios.get('${API_URL}/api/admin/stats'),
-                    axios.get('${API_URL}/api/admin/stats/activity')
+                    axios.get(`${API_URL}/api/admin/stats`),
+                    axios.get(`${API_URL}/api/admin/stats/activity`)
                 ]);
                 setStats(statsRes.data);
                 setActivity(activityRes.data.recentFeedbacks || []);

@@ -15,7 +15,7 @@ const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, onSaved }) =>
         e.preventDefault();
         setSaving(true);
         try {
-            await axios.post('${API_URL}/api/client/feedback', {
+            await axios.post(`${API_URL}/api/client/feedback`, {
                 workoutId,
                 rpe,
                 comments

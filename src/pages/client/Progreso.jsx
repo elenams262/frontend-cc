@@ -10,7 +10,7 @@ const Progreso = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await axios.get('${API_URL}/api/client/feedback');
+                const res = await axios.get(`${API_URL}/api/client/feedback`);
                 setLogs(res.data);
             } catch (error) {
                 console.error("Error al cargar historial", error);

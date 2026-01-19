@@ -19,7 +19,7 @@ const ClientDashboard = () => {
             try {
                 // Obtenemos las rutinas asignadas
                 const token =     localStorage.getItem('token');
-                const res = await axios.get('${API_URL}/api/client/workouts', {
+                const res = await axios.get(`${API_URL}/api/client/workouts`, {
                     headers: { 'x-auth-token': token }
                 });
                 

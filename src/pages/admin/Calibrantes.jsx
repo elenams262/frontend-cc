@@ -16,7 +16,7 @@ const Calibrantes = () => {
     // Función para cargar usuarios del backend
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('${API_URL}/api/admin/users');
+            const res = await axios.get(`${API_URL}/api/admin/users`);
             setUsers(res.data);
         } catch (error) {
             console.error("Error cargando usuarios:", error);

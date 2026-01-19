@@ -15,7 +15,7 @@ const Ejercicios = () => {
 
   const fetchExercises = async () => {
     try {
-      const res = await axios.get('${API_URL}/api/admin/exercises');
+      const res = await axios.get(`${API_URL}/api/admin/exercises`);
       setExercises(res.data);
       setFilteredExercises(res.data);
     } catch (error) {

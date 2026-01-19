@@ -19,8 +19,8 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
         const fetchData = async () => {
             try {
                 const [exercisesRes, templatesRes] = await Promise.all([
-                    axios.get('${API_URL}/api/admin/exercises'),
-                    axios.get('${API_URL}/api/admin/templates')
+                    axios.get(`${API_URL}/api/admin/exercises`),
+                    axios.get(`${API_URL}/api/admin/templates`)
                 ]);
                 setExercisesList(exercisesRes.data);
                 setTemplates(templatesRes.data);
@@ -90,7 +90,7 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
 
     setLoading(true);
     try {
-        await axios.post('${API_URL}/api/admin/workouts', {
+        await axios.post(`${API_URL}/api/admin/workouts`, {
             clientId,
             title,
             exercises: selectedExercises.map(ex => ({

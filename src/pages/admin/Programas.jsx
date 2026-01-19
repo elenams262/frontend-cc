@@ -20,7 +20,7 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
             // 1. Cargar ejercicios
             const fetchExercises = async () => {
                 try {
-                    const res = await axios.get('${API_URL}/api/admin/exercises');
+                    const res = await axios.get(`${API_URL}/api/admin/exercises`);
                     setExercisesList(res.data);
                 } catch (err) { console.error(err); }
             };
@@ -112,7 +112,7 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
                 await axios.put(`${API_URL}/api/admin/templates/${templateToEdit._id}`, payload);
             } else {
                 // Crear
-                await axios.post('${API_URL}/api/admin/templates', payload);
+                await axios.post(`${API_URL}/api/admin/templates`, payload);
             }
             
             onTemplateCreated();
@@ -246,7 +246,7 @@ const Programas = () => {
 
     const fetchTemplates = async () => {
         try {
-            const res = await axios.get('${API_URL}/api/admin/templates');
+            const res = await axios.get(`${API_URL}/api/admin/templates`);
             setTemplates(res.data);
         } catch (err) { console.error(err); } 
         finally { setLoading(false); }

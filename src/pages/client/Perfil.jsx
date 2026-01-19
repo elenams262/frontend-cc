@@ -43,7 +43,7 @@ const Perfil = () => {
                             try {
                                 // Subida
                                 const token = localStorage.getItem('token');
-                                const res = await fetch('${API_URL}/api/client/avatar', {
+                                const res = await fetch(`${API_URL}/api/client/avatar`, {
                                     method: 'POST',
                                     headers: { 'x-auth-token': token },
                                     body: formData

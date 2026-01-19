@@ -10,7 +10,7 @@ import WorkoutBuilderModal from '../../components/WorkoutBuilderModal';
 const ROUTES = {
     user: (id) => `${API_URL}/api/admin/users/${id}`,
     evaluations: (id) => `${API_URL}/api/admin/evaluations/${id}`,
-    createEvaluation: '${API_URL}/api/admin/evaluations',
+    createEvaluation: `${API_URL}/api/admin/evaluations`,
     workouts: (id) => `${API_URL}/api/admin/workouts/client/${id}`
 };
 
@@ -457,7 +457,7 @@ const NotesSection = ({ clientId }) => {
                 setEditingNote(null);
             } else {
                 // Modo Creación
-                await axios.post('${API_URL}/api/admin/notes', {
+                await axios.post(`${API_URL}/api/admin/notes`, {
                     clientId, content: newNote
                 });
                 setNewNote('');

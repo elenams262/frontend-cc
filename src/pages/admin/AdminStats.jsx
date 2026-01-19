@@ -17,8 +17,8 @@ const AdminStats = () => {
         const loadData = async () => {
             try {
                 const [resStats, resActivity] = await Promise.all([
-                    axios.get('${API_URL}/api/admin/stats'),
-                    axios.get('${API_URL}/api/admin/stats/activity')
+                    axios.get(`${API_URL}/api/admin/stats`),
+                    axios.get(`${API_URL}/api/admin/stats/activity`)
                 ]);
                 setStats(resStats.data);
                 setActivity(resActivity.data.recentFeedbacks);

@@ -18,7 +18,7 @@ const AdminLayout = () => {
 
     try {
         const token = localStorage.getItem('token');
-        const res = await fetch('${API_URL}/api/admin/avatar', {
+        const res = await fetch(`${API_URL}/api/admin/avatar`, {
             method: 'POST',
             headers: { 'x-auth-token': token },
             body: formData

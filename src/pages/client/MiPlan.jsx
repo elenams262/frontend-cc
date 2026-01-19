@@ -14,7 +14,7 @@ const MiPlan = () => {
         const fetchWorkouts = async () => {
             try {
                 // Obtenemos las rutinas del usuario logueado
-                const res = await axios.get('${API_URL}/api/client/workouts', {
+                const res = await axios.get(`${API_URL}/api/client/workouts`, {
                     headers: { 'x-auth-token': localStorage.getItem('token') } // Aseguramos enviar el token
                 });
                 setWorkouts(res.data);

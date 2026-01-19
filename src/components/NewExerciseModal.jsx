@@ -21,7 +21,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('${API_URL}/api/admin/exercises', {
+      await axios.post(`${API_URL}/api/admin/exercises`, {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
       });
