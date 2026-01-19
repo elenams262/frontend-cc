@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
@@ -7,10 +8,10 @@ import axios from 'axios';
 import WorkoutBuilderModal from '../../components/WorkoutBuilderModal';
 
 const ROUTES = {
-    user: (id) => `http://localhost:5000/api/admin/users/${id}`,
-    evaluations: (id) => `http://localhost:5000/api/admin/evaluations/${id}`,
-    createEvaluation: 'http://localhost:5000/api/admin/evaluations',
-    workouts: (id) => `http://localhost:5000/api/admin/workouts/client/${id}`
+    user: (id) => `${API_URL}/api/admin/users/${id}`,
+    evaluations: (id) => `${API_URL}/api/admin/evaluations/${id}`,
+    createEvaluation: '${API_URL}/api/admin/evaluations',
+    workouts: (id) => `${API_URL}/api/admin/workouts/client/${id}`
 };
 
 const ZONES = ["Hombro", "Raquis", "Cadera", "Rodilla", "Tobillo", "Core", "Pie", "Codo", "Muñeca"];
@@ -88,7 +89,7 @@ const CalibranteDetalle = () => {
   // Manejador: Editar Usuario
   const handleUpdateUser = async () => {
       try {
-          const res = await axios.put(`http://localhost:5000/api/admin/users/${id}`, editUserData);
+          const res = await axios.put(`${API_URL}/api/admin/users/${id}`, editUserData);
           setUser(res.data);
           setIsEditingUser(false);
           alert("✅ Datos actualizados");
@@ -102,7 +103,7 @@ const CalibranteDetalle = () => {
     if (confirmName !== user.name) return alert("Nombre incorrecto. No se ha eliminado.");
 
     try {
-        await axios.delete(`http://localhost:5000/api/admin/users/${id}`);
+        await axios.delete(`${API_URL}/api/admin/users/${id}`);
         alert("Usuario eliminado correctamente.");
         navigate('/admin/calibrantes');
     } catch (err) { alert("Error al eliminar usuario"); }
@@ -111,7 +112,7 @@ const CalibranteDetalle = () => {
   const handleDeleteWorkout = async (workoutId) => {
     if(!confirm("¿Seguro que quieres eliminar esta rutina?")) return;
     try {
-        await axios.delete(`http://localhost:5000/api/admin/workouts/${workoutId}`);
+        await axios.delete(`${API_URL}/api/admin/workouts/${workoutId}`);
         fetchWorkouts();
     } catch (e) { alert("Error al eliminar rutina"); }
   };
@@ -138,7 +139,7 @@ const CalibranteDetalle = () => {
             <button onClick={async () => {
                 if(!confirm("¿Generar código de recuperación de contraseña?")) return;
                 try {
-                    const res = await axios.post(`http://localhost:5000/api/admin/users/${id}/recovery-code`);
+                    const res = await axios.post(`${API_URL}/api/admin/users/${id}/recovery-code`);
                     alert(`Código generado: ${res.data.recoveryCode}\n\nEnvíalo al cliente para que pueda restablecer su contraseña.`);
                 } catch(e) { alert("Error al generar código"); }
             }} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-yellow-200 rounded-lg text-sm font-bold text-yellow-600 hover:bg-yellow-50 shadow-sm transition-colors whitespace-nowrap">
@@ -387,7 +388,7 @@ const FeedbackList = ({ clientId }) => {
     useEffect(() => {
         const fetchFeedback = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/admin/feedback/${clientId}`);
+                const res = await axios.get(`${API_URL}/api/admin/feedback/${clientId}`);
                 setLogs(res.data);
             } catch (err) {
                 console.error(err);
@@ -434,7 +435,7 @@ const NotesSection = ({ clientId }) => {
 
     const fetchNotes = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/admin/notes/${clientId}`);
+            const res = await axios.get(`${API_URL}/api/admin/notes/${clientId}`);
             setNotes(res.data);
         } catch (err) { console.error(err); } 
         finally { setLoading(false); }
@@ -450,13 +451,13 @@ const NotesSection = ({ clientId }) => {
         try {
             if (editingNote) {
                 // Modo Edición
-                await axios.put(`http://localhost:5000/api/admin/notes/${editingNote._id}`, {
+                await axios.put(`${API_URL}/api/admin/notes/${editingNote._id}`, {
                     content: contentToSave
                 });
                 setEditingNote(null);
             } else {
                 // Modo Creación
-                await axios.post('http://localhost:5000/api/admin/notes', {
+                await axios.post('${API_URL}/api/admin/notes', {
                     clientId, content: newNote
                 });
                 setNewNote('');
@@ -468,7 +469,7 @@ const NotesSection = ({ clientId }) => {
     const handleDeleteNote = async (noteId) => {
         if (!confirm("¿Borrar esta nota?")) return;
         try {
-            await axios.delete(`http://localhost:5000/api/admin/notes/${noteId}`);
+            await axios.delete(`${API_URL}/api/admin/notes/${noteId}`);
             fetchNotes();
         } catch (err) { alert("Error al borrar nota"); }
     };
@@ -542,3 +543,4 @@ const InfoItem = ({ label, value, badge, alert }) => (
 );
 
 export default CalibranteDetalle;
+

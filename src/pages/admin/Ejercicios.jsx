@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { Search, Plus, PlayCircle, Filter, Trash2 } from 'lucide-react';
@@ -14,7 +15,7 @@ const Ejercicios = () => {
 
   const fetchExercises = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/exercises');
+      const res = await axios.get('${API_URL}/api/admin/exercises');
       setExercises(res.data);
       setFilteredExercises(res.data);
     } catch (error) {
@@ -61,7 +62,7 @@ const Ejercicios = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("¿Seguro que quieres eliminar este ejercicio?")) return;
     try {
-        await axios.delete(`http://localhost:5000/api/admin/exercises/${id}`);
+        await axios.delete(`${API_URL}/api/admin/exercises/${id}`);
         // Recargar la lista
         fetchExercises();
     } catch (err) {
@@ -175,3 +176,4 @@ const Ejercicios = () => {
 };
 
 export default Ejercicios;
+

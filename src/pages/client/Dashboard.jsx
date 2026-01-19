@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, CheckCircle, PlayCircle, Clock, Activity, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -18,7 +19,7 @@ const ClientDashboard = () => {
             try {
                 // Obtenemos las rutinas asignadas
                 const token =     localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/client/workouts', {
+                const res = await axios.get('${API_URL}/api/client/workouts', {
                     headers: { 'x-auth-token': token }
                 });
                 
@@ -124,3 +125,4 @@ const ClientDashboard = () => {
 };
 
 export default ClientDashboard;
+

@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, ChevronUp, PlayCircle, Clock, Info, CheckCircle } from 'lucide-react';
 import axios from 'axios';
@@ -13,7 +14,7 @@ const MiPlan = () => {
         const fetchWorkouts = async () => {
             try {
                 // Obtenemos las rutinas del usuario logueado
-                const res = await axios.get('http://localhost:5000/api/client/workouts', {
+                const res = await axios.get('${API_URL}/api/client/workouts', {
                     headers: { 'x-auth-token': localStorage.getItem('token') } // Aseguramos enviar el token
                 });
                 setWorkouts(res.data);
@@ -198,3 +199,4 @@ const MiPlan = () => {
 };
 
 export default MiPlan;
+

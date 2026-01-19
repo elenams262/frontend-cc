@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { Search, Plus, ChevronRight, AlertTriangle } from 'lucide-react';
@@ -15,7 +16,7 @@ const Calibrantes = () => {
     // Función para cargar usuarios del backend
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/admin/users');
+            const res = await axios.get('${API_URL}/api/admin/users');
             setUsers(res.data);
         } catch (error) {
             console.error("Error cargando usuarios:", error);
@@ -87,7 +88,7 @@ const Calibrantes = () => {
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                                         {user.avatar ? (
-                                            <img src={`http://localhost:5000/${user.avatar}`} alt={user.name} className="w-full h-full object-cover" />
+                                            <img src={`${API_URL}/${user.avatar}`} alt={user.name} className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-gray-100">
                                                 {user.name.charAt(0)}
@@ -143,3 +144,4 @@ const Calibrantes = () => {
 };
 
 export default Calibrantes;
+

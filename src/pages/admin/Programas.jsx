@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, X, Search, ChevronRight, Dumbbell, Pencil } from 'lucide-react';
 import axios from 'axios';
@@ -19,7 +20,7 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
             // 1. Cargar ejercicios
             const fetchExercises = async () => {
                 try {
-                    const res = await axios.get('http://localhost:5000/api/admin/exercises');
+                    const res = await axios.get('${API_URL}/api/admin/exercises');
                     setExercisesList(res.data);
                 } catch (err) { console.error(err); }
             };
@@ -108,10 +109,10 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
         try {
             if (templateToEdit) {
                 // Editar
-                await axios.put(`http://localhost:5000/api/admin/templates/${templateToEdit._id}`, payload);
+                await axios.put(`${API_URL}/api/admin/templates/${templateToEdit._id}`, payload);
             } else {
                 // Crear
-                await axios.post('http://localhost:5000/api/admin/templates', payload);
+                await axios.post('${API_URL}/api/admin/templates', payload);
             }
             
             onTemplateCreated();
@@ -245,7 +246,7 @@ const Programas = () => {
 
     const fetchTemplates = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/admin/templates');
+            const res = await axios.get('${API_URL}/api/admin/templates');
             setTemplates(res.data);
         } catch (err) { console.error(err); } 
         finally { setLoading(false); }
@@ -266,7 +267,7 @@ const Programas = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("¿Seguro que quieres eliminar esta plantilla?")) return;
         try {
-            await axios.delete(`http://localhost:5000/api/admin/templates/${id}`);
+            await axios.delete(`${API_URL}/api/admin/templates/${id}`);
             fetchTemplates();
         } catch (err) {
             console.error(err);
@@ -342,3 +343,4 @@ const Programas = () => {
 };
 
 export default Programas;
+

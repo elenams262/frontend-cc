@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import { X, Save, Plus, Trash2, Search } from 'lucide-react';
@@ -18,8 +19,8 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
         const fetchData = async () => {
             try {
                 const [exercisesRes, templatesRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/admin/exercises'),
-                    axios.get('http://localhost:5000/api/admin/templates')
+                    axios.get('${API_URL}/api/admin/exercises'),
+                    axios.get('${API_URL}/api/admin/templates')
                 ]);
                 setExercisesList(exercisesRes.data);
                 setTemplates(templatesRes.data);
@@ -89,7 +90,7 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
 
     setLoading(true);
     try {
-        await axios.post('http://localhost:5000/api/admin/workouts', {
+        await axios.post('${API_URL}/api/admin/workouts', {
             clientId,
             title,
             exercises: selectedExercises.map(ex => ({
@@ -256,3 +257,4 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
 };
 
 export default WorkoutBuilderModal;
+

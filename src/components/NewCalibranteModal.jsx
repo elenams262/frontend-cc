@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 import { useState } from 'react';
 import { X, Save, Copy, Check } from 'lucide-react';
 import axios from 'axios';
@@ -39,7 +40,7 @@ const NewCalibranteModal = ({ isOpen, onClose, onUserCreated }) => {
       };
 
       // 2. Enviar al backend
-      const res = await axios.post('http://localhost:5000/api/admin/users', payload);
+      const res = await axios.post('${API_URL}/api/admin/users', payload);
       
       // 3. Éxito: Guardar código para mostrar
       setCreatedCode(res.data.inviteCode);
@@ -159,3 +160,4 @@ const NewCalibranteModal = ({ isOpen, onClose, onUserCreated }) => {
 };
 
 export default NewCalibranteModal;
+

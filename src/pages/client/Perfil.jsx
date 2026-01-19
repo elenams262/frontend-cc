@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 import { User, Mail, LogOut, Settings, Bell, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +26,7 @@ const Perfil = () => {
                 <div className="relative">
                     <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center text-brand-primary border-2 border-brand-primary/10 overflow-hidden">
                          {user.avatar ? (
-                            <img src={`http://localhost:5000/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                            <img src={`${API_URL}/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
                          ) : (
                             <User size={32} />
                          )}
@@ -42,7 +43,7 @@ const Perfil = () => {
                             try {
                                 // Subida
                                 const token = localStorage.getItem('token');
-                                const res = await fetch('http://localhost:5000/api/client/avatar', {
+                                const res = await fetch('${API_URL}/api/client/avatar', {
                                     method: 'POST',
                                     headers: { 'x-auth-token': token },
                                     body: formData
@@ -87,3 +88,4 @@ const Perfil = () => {
 };
 
 export default Perfil;
+

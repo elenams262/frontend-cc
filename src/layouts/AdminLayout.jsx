@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 import { Outlet, Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Users, BookOpen, Dumbbell, LayoutDashboard, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -17,7 +18,7 @@ const AdminLayout = () => {
 
     try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/admin/avatar', {
+        const res = await fetch('${API_URL}/api/admin/avatar', {
             method: 'POST',
             headers: { 'x-auth-token': token },
             body: formData
@@ -56,7 +57,7 @@ const AdminLayout = () => {
              <div className="relative group">
                 <div className="w-8 h-8 rounded-full bg-brand-secondary flex items-center justify-center text-brand-primary font-bold overflow-hidden border-2 border-white/20">
                      {user?.avatar ? (
-                        <img src={`http://localhost:5000/${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={`${API_URL}/${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
                      ) : (
                         <span>{user?.name?.[0] || 'A'}</span>
                      )}
@@ -107,7 +108,7 @@ const AdminLayout = () => {
                 <div className="relative group">
                     <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center text-brand-primary font-bold overflow-hidden border-2 border-white/20">
                          {user?.avatar ? (
-                            <img src={`http://localhost:5000/${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
+                            <img src={`${API_URL}/${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
                          ) : (
                             <span>{user?.name?.[0] || 'D'}</span>
                          )}
@@ -163,3 +164,4 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
+

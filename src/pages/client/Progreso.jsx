@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
 import { Activity, Calendar, Trophy, TrendingUp } from 'lucide-react';
 import axios from 'axios';
@@ -9,7 +10,7 @@ const Progreso = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/client/feedback');
+                const res = await axios.get('${API_URL}/api/client/feedback');
                 setLogs(res.data);
             } catch (error) {
                 console.error("Error al cargar historial", error);
@@ -108,3 +109,4 @@ const Progreso = () => {
 };
 
 export default Progreso;
+

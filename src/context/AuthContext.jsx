@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             // Pedimos los datos reales del usuario al backend
-            const res = await axios.get('http://localhost:5000/api/auth/me');
+            const res = await axios.get('${API_URL}/api/auth/me');
             setUser({ ...res.data, token }); 
         } catch (error) {
             console.error("Error al cargar usuario (token vencido o inválido):", error);
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     // NOTA: El endpoint real dependerá de tu backend. 
     // Por ahora conectamos con la ruta que vimos antes: /api/auth/login
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      const res = await axios.post('${API_URL}/api/auth/login', {
         email,
         password
       });
@@ -74,3 +75,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+

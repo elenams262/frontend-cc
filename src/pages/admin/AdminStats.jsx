@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BarChart, Activity, TrendingUp, Users, Calendar } from 'lucide-react';
@@ -16,8 +17,8 @@ const AdminStats = () => {
         const loadData = async () => {
             try {
                 const [resStats, resActivity] = await Promise.all([
-                    axios.get('http://localhost:5000/api/admin/stats'),
-                    axios.get('http://localhost:5000/api/admin/stats/activity')
+                    axios.get('${API_URL}/api/admin/stats'),
+                    axios.get('${API_URL}/api/admin/stats/activity')
                 ]);
                 setStats(resStats.data);
                 setActivity(resActivity.data.recentFeedbacks);
@@ -86,7 +87,7 @@ const AdminStats = () => {
                                 <div key={item._id} className="p-4 hover:bg-gray-50 transition-colors flex gap-4">
                                     <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                                          {item.client?.avatar ? (
-                                            <img src={`http://localhost:5000/${item.client.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                                            <img src={`${API_URL}/${item.client.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
                                          ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-xs">
                                                 {item.client?.name?.[0]}
@@ -164,3 +165,4 @@ const AdminStats = () => {
 };
 
 export default AdminStats;
+

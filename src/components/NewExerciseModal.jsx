@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 import { useState } from 'react';
 import { X, Save, Video, Tag } from 'lucide-react';
 import axios from 'axios';
@@ -20,7 +21,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/admin/exercises', {
+      await axios.post('${API_URL}/api/admin/exercises', {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
       });
@@ -90,3 +91,4 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
 };
 
 export default NewExerciseModal;
+

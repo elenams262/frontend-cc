@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 /* eslint-disable react/prop-types */
 import { X, Check } from 'lucide-react';
 import { useState } from 'react';
@@ -14,7 +15,7 @@ const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, onSaved }) =>
         e.preventDefault();
         setSaving(true);
         try {
-            await axios.post('http://localhost:5000/api/client/feedback', {
+            await axios.post('${API_URL}/api/client/feedback', {
                 workoutId,
                 rpe,
                 comments
@@ -85,3 +86,4 @@ const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, onSaved }) =>
 };
 
 export default FeedbackModal;
+

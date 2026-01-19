@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useNavigate } from 'react-router-dom';
 import { Users, Dumbbell, Calendar, Activity } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -18,8 +19,8 @@ const AdminDashboard = () => {
         const fetchStats = async () => {
             try {
                 const [statsRes, activityRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/admin/stats'),
-                    axios.get('http://localhost:5000/api/admin/stats/activity')
+                    axios.get('${API_URL}/api/admin/stats'),
+                    axios.get('${API_URL}/api/admin/stats/activity')
                 ]);
                 setStats(statsRes.data);
                 setActivity(activityRes.data.recentFeedbacks || []);
@@ -100,7 +101,7 @@ const AdminDashboard = () => {
                                 <div key={item._id} className="flex gap-3 items-start p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-50">
                                     <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 mt-1">
                                          {item.client?.avatar ? (
-                                            <img src={`http://localhost:5000/${item.client.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                                            <img src={`${API_URL}/${item.client.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
                                          ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-[10px]">
                                                 {item.client?.name?.[0]}
@@ -143,3 +144,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
