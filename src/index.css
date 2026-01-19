@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta de Colores Calibrado Corporal */
+
+  /* Azul Petróleo (Primario) */
+  --color-brand-primary: #2f4f4f;
+  --color-brand-primary-light: #426868;
+
+  /* Verde Salvia (Secundario) */
+  --color-brand-secondary: #9ba88d;
+  --color-brand-secondary-light: #bac7ad;
+
+  /* Gris Piedra Cálido (Fondo Neutro) */
+  --color-brand-bg: #e5e5e5;
+  --color-brand-bg-light: #f5f5f3;
+
+  /* Terracota Suave (Detalles emocionales) */
+  --color-brand-accent: #d9a17e;
+
+  /* Mostaza (Botones/Acción) */
+  --color-brand-action: #d4a017;
+
+  /* Texto */
+  --color-brand-text: #2d2d2d;
+  --color-brand-text-muted: #5c5c5c;
+
+  /* Fuentes */
+  --font-sans: "Inter", system-ui, sans-serif;
+}
