@@ -1,5 +1,5 @@
 import { API_URL } from '../config/api';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Save, Video, Tag, Image } from 'lucide-react';
 import axios from 'axios';
 
