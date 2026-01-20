@@ -157,14 +157,10 @@ const ClientDashboard = () => {
             </section>
 
             {/* Accesos Rápidos */}
-            <section className="grid grid-cols-2 gap-4">
-                <button onClick={() => navigate('/client/progreso')} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:border-brand-secondary transition-colors group">
-                    <div className="bg-brand-primary/10 text-brand-primary p-3 rounded-full group-hover:bg-brand-primary group-hover:text-white transition-colors"><Activity size={20} /></div>
-                    <span className="text-sm font-bold text-gray-700">Mi Progreso</span>
-                </button>
-                <button className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:border-brand-secondary transition-colors group">
-                    <div className="bg-brand-secondary/10 text-brand-secondary p-3 rounded-full group-hover:bg-brand-secondary group-hover:text-white transition-colors"><Calendar size={20} /></div>
-                    <span className="text-sm font-bold text-gray-700">Calendario</span>
+            <section>
+                <button onClick={() => navigate('/client/progreso')} className="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-row items-center justify-center gap-3 hover:border-brand-secondary transition-colors group">
+                    <div className="bg-brand-primary/10 text-brand-primary p-2 rounded-full group-hover:bg-brand-primary group-hover:text-white transition-colors"><Activity size={20} /></div>
+                    <span className="text-sm font-bold text-gray-700">Ver Mi Progreso Detallado</span>
                 </button>
             </section>
         </div>
