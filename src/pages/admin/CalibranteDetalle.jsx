@@ -196,6 +196,15 @@ const CalibranteDetalle = () => {
                             <InfoItem label="Email" value={user.email} />
                             <InfoItem label="Teléfono" value={user.phone || "-"} />
                             <InfoItem label="Estado" value={user.profile?.status || "Activo"} badge />
+                            {user.inviteCode && (
+                                <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mt-2">
+                                     <p className="text-[10px] text-yellow-700 font-bold uppercase mb-1">⚠️ Cuenta Pendiente de Activar</p>
+                                     <div className="flex justify-between items-center">
+                                        <code className="font-mono font-bold text-lg text-brand-primary bg-white px-2 py-1 rounded border border-yellow-100">{user.inviteCode}</code>
+                                        <span className="text-xs text-yellow-600">Código de Invitación</span>
+                                     </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div>
