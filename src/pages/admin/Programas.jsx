@@ -133,10 +133,10 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-6xl h-[90vh] flex overflow-hidden shadow-2xl">
+            <div className="bg-white rounded-2xl w-full max-w-6xl h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl">
                 
                 {/* IZQUIERDA: Buscador */}
-                <div className="w-1/3 border-r border-gray-100 flex flex-col bg-gray-50">
+                <div className="w-full md:w-1/3 h-[35%] md:h-auto border-b md:border-b-0 md:border-r border-gray-100 flex flex-col bg-gray-50">
                     <div className="p-4 border-b border-gray-200 bg-white">
                         <h3 className="font-bold text-gray-700 mb-2">Biblioteca de Ejercicios</h3>
                         <div className="relative">
@@ -164,13 +164,13 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
                 </div>
 
                 {/* DERECHA: Constructor */}
-                <div className="flex-1 flex flex-col bg-white">
+                <div className="flex-1 flex flex-col bg-white h-[65%] md:h-auto">
                     <div className="p-6 border-b border-gray-100 flex justify-between items-start">
                         <div className="w-full mr-8 space-y-3">
                             <input 
                                 type="text" 
                                 placeholder="Nombre de la Plantilla (ej: Fuerza Nivel 1)"
-                                className="text-2xl font-bold text-gray-800 placeholder-gray-300 outline-none w-full border-b border-transparent hover:border-gray-200 focus:border-brand-primary transition-colors"
+                                className="text-xl md:text-2xl font-bold text-gray-800 placeholder-gray-300 outline-none w-full border-b border-transparent hover:border-gray-200 focus:border-brand-primary transition-colors"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                             />
@@ -185,7 +185,7 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
                         <button onClick={onClose} className="text-gray-400 hover:text-red-500"><X size={24} /></button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-gray-50/30">
                         {selectedExercises.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
                                 <Dumbbell size={48} className="mb-4 opacity-50" />
@@ -193,11 +193,15 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
                             </div>
                         ) : (
                             selectedExercises.map((ex, idx) => (
-                                <div key={idx} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex gap-4 items-start animate-fade-in group">
-                                    <span className="bg-brand-bg text-brand-primary font-bold w-8 h-8 flex items-center justify-center rounded-lg mt-1">{idx + 1}</span>
-                                    <div className="flex-1">
+                                <div key={idx} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-start animate-fade-in group">
+                                    <div className="flex justify-between w-full md:w-auto items-center">
+                                         <span className="bg-brand-bg text-brand-primary font-bold w-8 h-8 flex items-center justify-center rounded-lg">{idx + 1}</span>
+                                         <button onClick={() => handleRemoveExercise(idx)} className="text-gray-300 hover:text-red-500 md:hidden"><Trash2 size={18} /></button>
+                                    </div>
+                                    
+                                    <div className="flex-1 w-full">
                                         <h4 className="font-bold text-gray-800 mb-2">{ex.name || "Ejercicio"}</h4>
-                                        <div className="grid grid-cols-4 gap-4">
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             <div>
                                                 <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Series</label>
                                                 <input type="text" className="w-full p-2 bg-gray-50 border border-gray-200 rounded text-center font-mono text-sm" 
@@ -220,7 +224,7 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
                                             </div>
                                         </div>
                                     </div>
-                                    <button onClick={() => handleRemoveExercise(idx)} className="text-gray-300 hover:text-red-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={18} /></button>
+                                    <button onClick={() => handleRemoveExercise(idx)} className="text-gray-300 hover:text-red-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"><Trash2 size={18} /></button>
                                 </div>
                             ))
                         )}
