@@ -98,7 +98,7 @@ const Login = () => {
         <div className="bg-brand-primary p-8 text-center flex flex-col items-center">
           <img src="/logo.png" alt="Logo" className="w-24 h-auto mb-4 brightness-0 invert" />
           <h1 className="text-3xl font-bold text-white mb-2">Calibrado Corporal</h1>
-          <p className="text-brand-secondary-light">Tu cuerpo, entendido y potenciado.</p>
+          <p className="text-brand-secondary-light">Comprende. Entrena. Transforma.</p>
         </div>
 
         {/* Cuerpo de la tarjeta */}
