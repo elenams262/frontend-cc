@@ -52,6 +52,23 @@ const CalibranteDetalle = () => {
     if (activeTab === 'programa' && id) fetchWorkouts();
   }, [activeTab, id]);
 
+  // RESTAURADO: Cargar Usuario
+  useEffect(() => {
+    const fetchUser = async () => {
+        try {
+            const res = await axios.get(ROUTES.user(id));
+            setUser(res.data);
+        } catch (error) {
+            console.error("Error al cargar ficha:", error);
+            alert("Error al cargar el usuario.");
+            navigate('/admin/calibrantes');
+        } finally {
+            setLoading(false);
+        }
+    };
+    if (id) fetchUser();
+  }, [id]);
+
   // Manejadores Evaluación
   const toggleZone = (zone) => {
     setEvalFormData(prev => {
