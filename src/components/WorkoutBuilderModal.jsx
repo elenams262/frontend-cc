@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, Save, Plus, Trash2, Search } from 'lucide-react';
 import axios from 'axios';
 
-const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) => {
+const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated, workoutToEdit }) => {
   const [title, setTitle] = useState('');
   const [exercisesList, setExercisesList] = useState([]); // Base de datos de ejercicios para elegir
   const [selectedExercises, setSelectedExercises] = useState([]); // Ejercicios añadidos a la rutina
@@ -12,6 +12,27 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
   const [searchTerm, setSearchTerm] = useState('');
 
   const [templates, setTemplates] = useState([]); // Estado para plantillas
+
+  // EFECTO PARA MODO EDICIÓN: Cargar datos si hay workoutToEdit
+  useEffect(() => {
+      if (isOpen && workoutToEdit) {
+          setTitle(workoutToEdit.title);
+          // Mapeamos los ejercicios existentes al formato que espera el estado
+          const mapped = workoutToEdit.exercises.map(item => ({
+              exercise: item.exercise?._id || item.exercise, // ID del ejercicio
+              name: item.exercise?.name || "Ejercicio Eliminado", // Nombre para mostrar
+              sets: item.sets,
+              reps: item.reps,
+              rest: item.rest,
+              notes: item.notes || ""
+          }));
+          setSelectedExercises(mapped);
+      } else if (isOpen && !workoutToEdit) {
+          // Si abrimos en modo crear, limpiar
+          setTitle('');
+          setSelectedExercises([]);
+      }
+  }, [isOpen, workoutToEdit]);
 
   // Cargar lista de ejercicios y PLANTILLAS disponibles al abrir
   useEffect(() => {
@@ -90,7 +111,7 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
 
     setLoading(true);
     try {
-        await axios.post(`${API_URL}/api/admin/workouts`, {
+        const payload = {
             clientId,
             title,
             exercises: selectedExercises.map(ex => ({
@@ -100,8 +121,18 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
                 rest: ex.rest,
                 notes: ex.notes
             }))
-        });
-        alert("✅ Rutina asignada con éxito");
+        };
+
+        if (workoutToEdit) {
+            // MODO EDICIÓN (PUT)
+             await axios.put(`${API_URL}/api/admin/workouts/${workoutToEdit._id}`, payload);
+             alert("✅ Rutina actualizada correctamente");
+        } else {
+            // MODO CREACIÓN (POST)
+            await axios.post(`${API_URL}/api/admin/workouts`, payload);
+            alert("✅ Rutina asignada con éxito");
+        }
+
         onWorkoutCreated();
         onClose();
         setTitle('');
@@ -127,7 +158,7 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
         
         {/* Cabecera */}
         <div className="bg-brand-primary p-4 flex justify-between items-center text-white shrink-0">
-            <h2 className="text-lg font-bold">Asignar Nueva Rutina</h2>
+            <h2 className="text-lg font-bold">{workoutToEdit ? 'Editar Rutina' : 'Asignar Nueva Rutina'}</h2>
             <button onClick={onClose}><X size={24} /></button>
         </div>
 
@@ -152,7 +183,7 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
                 <div className="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100 flex items-center justify-between">
                     <div>
                         <h5 className="font-bold text-gray-800 text-sm">¿Quieres usar una plantilla?</h5>
-                        <p className="text-xs text-gray-500">Carga una estructura predefinida para ir más rápido.</p>
+                        <p className="text-xs text-gray-500">Carga una estructura predefinida {workoutToEdit ? "(Reemplazará lo actual)" : "para ir más rápido"}.</p>
                     </div>
                      <select 
                         onChange={(e) => {
@@ -247,7 +278,7 @@ const WorkoutBuilderModal = ({ isOpen, onClose, clientId, onWorkoutCreated }) =>
                 className="bg-brand-action text-white px-8 py-3 rounded-lg hover:bg-yellow-600 font-bold shadow-sm flex items-center gap-2"
             >
                 <Save size={20} />
-                <span>{loading ? 'Guardando...' : 'Asignar Rutina'}</span>
+                <span>{loading ? 'Guardando...' : (workoutToEdit ? 'Actualizar Rutina' : 'Asignar Rutina')}</span>
             </button>
         </div>
 
