@@ -120,7 +120,7 @@ const AdminLayout = () => {
                     </label>
                 </div>
                 <div className="text-sm">
-                    <p className="font-medium">{(user?.name === 'Admin' || user?.name === 'admin' || !user?.name) ? 'David Martínez' : user.name}</p>
+                    <p className="font-medium">{(user?.name === 'Admin' || user?.name === 'admin' || !user?.name) ? 'Davi Martínez' : user.name}</p>
                     <p className="text-xs text-brand-secondary-light">Administrador</p>
                 </div>
             </div>
