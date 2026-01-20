@@ -281,22 +281,24 @@ const TemplateDetailModal = ({ isOpen, onClose, template }) => {
                                      </span>
                                 </div>
                                 
-                                <div className="grid grid-cols-4 gap-2 text-center text-sm">
-                                    <div className="bg-gray-50 p-2 rounded">
-                                        <div className="text-xs text-gray-400 font-bold uppercase mb-1">Series</div>
-                                        <div className="font-mono">{item.sets}</div>
+                                <div className="space-y-2 text-sm">
+                                    <div className="grid grid-cols-3 gap-2 text-center">
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <div className="text-xs text-gray-400 font-bold uppercase mb-1">Series</div>
+                                            <div className="font-mono">{item.sets}</div>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <div className="text-xs text-gray-400 font-bold uppercase mb-1">Repes</div>
+                                            <div className="font-mono">{item.reps}</div>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded">
+                                            <div className="text-xs text-gray-400 font-bold uppercase mb-1">Descanso</div>
+                                            <div className="font-mono">{item.rest}</div>
+                                        </div>
                                     </div>
                                     <div className="bg-gray-50 p-2 rounded">
-                                        <div className="text-xs text-gray-400 font-bold uppercase mb-1">Repes</div>
-                                        <div className="font-mono">{item.reps}</div>
-                                    </div>
-                                    <div className="bg-gray-50 p-2 rounded">
-                                        <div className="text-xs text-gray-400 font-bold uppercase mb-1">Descanso</div>
-                                        <div className="font-mono">{item.rest}</div>
-                                    </div>
-                                    <div className="bg-gray-50 p-2 rounded col-span-1">
                                          <div className="text-xs text-gray-400 font-bold uppercase mb-1">Notas</div>
-                                         <div className="truncate" title={item.notes}>{item.notes || "-"}</div>
+                                         <div className="text-gray-600 whitespace-pre-wrap">{item.notes || "-"}</div>
                                     </div>
                                 </div>
                                 {item.exercise?.videoUrl && (
