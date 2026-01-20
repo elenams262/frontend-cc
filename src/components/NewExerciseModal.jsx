@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const CATEGORIES = ["Movilidad", "Fuerza", "Respiración", "Activación", "Estiramiento", "Cardio"];
 
-const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
+const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }) => {
   const [formData, setFormData] = useState({
     name: '',
     category: 'Movilidad',
@@ -16,6 +16,23 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (exerciseToEdit) {
+        setFormData({
+          name: exerciseToEdit.name || '',
+          category: exerciseToEdit.category || 'Movilidad',
+          videoUrl: exerciseToEdit.videoUrl || '',
+          instructions: exerciseToEdit.instructions || '',
+          tags: exerciseToEdit.tags ? exerciseToEdit.tags.join(', ') : ''
+        });
+      } else {
+        setFormData({ name: '', category: 'Movilidad', videoUrl: '', instructions: '', tags: '' });
+        setImageFile(null);
+      }
+    }
+  }, [isOpen, exerciseToEdit]);
 
   if (!isOpen) return null;
 
@@ -36,14 +53,20 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
         data.append('image', imageFile);
       }
 
-      await axios.post(`${API_URL}/api/admin/exercises`, data, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      alert("✅ Ejercicio añadido");
+      if (exerciseToEdit) {
+        await axios.put(`${API_URL}/api/admin/exercises/${exerciseToEdit._id}`, data, {
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+        alert("✅ Ejercicio actualizado");
+      } else {
+        await axios.post(`${API_URL}/api/admin/exercises`, data, {
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+        alert("✅ Ejercicio añadido");
+      }
+
       onExerciseCreated();
       onClose();
-      setFormData({ name: '', category: 'Movilidad', videoUrl: '', instructions: '', tags: '' });
-      setImageFile(null);
     } catch (error) {
       console.error(error);
       alert("Error al guardar ejercicio");
@@ -57,7 +80,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in">
         <div className="bg-brand-primary p-4 flex justify-between items-center text-white">
             <h2 className="text-lg font-bold flex items-center gap-2">
-                <Video size={20} /> Nuevo Ejercicio
+                <Video size={20} /> {exerciseToEdit ? 'Editar Ejercicio' : 'Nuevo Ejercicio'}
             </h2>
             <button onClick={onClose}><X size={24} /></button>
         </div>
@@ -96,7 +119,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
                         onClick={() => fileInputRef.current.click()}
                     >
                         <Image size={20} className="text-gray-400" />
-                        <span className="text-xs text-gray-500 truncate">{imageFile ? imageFile.name : 'Subir imagen...'}</span>
+                        <span className="text-xs text-gray-500 truncate">{imageFile ? imageFile.name : (exerciseToEdit?.image ? 'Cambiar imagen...' : 'Subir imagen...')}</span>
                         <input 
                             type="file" 
                             ref={fileInputRef} 
@@ -115,7 +138,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
 
             <div className="flex justify-end pt-2">
                 <button type="submit" disabled={loading} className="bg-brand-action text-white px-6 py-2 rounded-lg hover:bg-yellow-600 flex items-center gap-2">
-                    <Save size={18} /> <span>{loading ? 'Guardando...' : 'Guardar Ejercicio'}</span>
+                    <Save size={18} /> <span>{loading ? 'Guardando...' : (exerciseToEdit ? 'Actualizar' : 'Guardar Ejercicio')}</span>
                 </button>
             </div>
         </form>

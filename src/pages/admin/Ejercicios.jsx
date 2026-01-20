@@ -1,7 +1,7 @@
 import { API_URL } from '../../config/api';
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
-import { Search, Plus, PlayCircle, Filter, Trash2 } from 'lucide-react';
+import { Search, Plus, PlayCircle, Filter, Trash2, Pencil } from 'lucide-react';
 import axios from 'axios';
 import NewExerciseModal from '../../components/NewExerciseModal';
 
@@ -10,6 +10,7 @@ const Ejercicios = () => {
   const [filteredExercises, setFilteredExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingExercise, setEditingExercise] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('Todos');
 
@@ -71,6 +72,16 @@ const Ejercicios = () => {
     }
   };
 
+  const handleEdit = (exercise) => {
+      setEditingExercise(exercise);
+      setIsModalOpen(true);
+  };
+
+  const handleNew = () => {
+      setEditingExercise(null);
+      setIsModalOpen(true);
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -78,7 +89,7 @@ const Ejercicios = () => {
                 <h1 className="text-2xl font-bold text-brand-primary">Biblioteca de Ejercicios</h1>
                 <p className="text-gray-500">Gestiona y organiza tus recursos de vídeo.</p>
             </div>
-            <button onClick={() => setIsModalOpen(true)} className="w-full md:w-auto flex items-center justify-center space-x-2 bg-brand-action text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-md">
+            <button onClick={handleNew} className="w-full md:w-auto flex items-center justify-center space-x-2 bg-brand-action text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-md">
                 <Plus size={20} />
                 <span>Nuevo Ejercicio</span>
             </button>
@@ -158,13 +169,22 @@ const Ejercicios = () => {
                                     <a href={ex.videoUrl} target="_blank" rel="noreferrer" className="hover:text-brand-action flex items-center gap-1">
                                         <PlayCircle size={14} /> Ver video
                                     </a>
-                                    <button 
-                                        onClick={() => handleDelete(ex._id)} 
-                                        className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                                        title="Eliminar ejercicio"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleEdit(ex)}
+                                            className="text-gray-300 hover:text-blue-500 transition-colors p-1"
+                                            title="Editar ejercicio"
+                                        >
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(ex._id)} 
+                                            className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                                            title="Eliminar ejercicio"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -173,7 +193,12 @@ const Ejercicios = () => {
             </div>
         )}
 
-        <NewExerciseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onExerciseCreated={fetchExercises} />
+        <NewExerciseModal 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+            onExerciseCreated={fetchExercises} 
+            exerciseToEdit={editingExercise}
+        />
     </div>
   );
 };
