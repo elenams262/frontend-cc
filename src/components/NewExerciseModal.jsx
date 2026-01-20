@@ -1,6 +1,6 @@
 import { API_URL } from '../config/api';
-import { useState } from 'react';
-import { X, Save, Video, Tag } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, Save, Video, Tag, Image } from 'lucide-react';
 import axios from 'axios';
 
 const CATEGORIES = ["Movilidad", "Fuerza", "Respiración", "Activación", "Estiramiento", "Cardio"];
@@ -13,6 +13,8 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
     instructions: '',
     tags: ''
   });
+  const [imageFile, setImageFile] = useState(null);
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -21,14 +23,27 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(`${API_URL}/api/admin/exercises`, {
-        ...formData,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('category', formData.category);
+      data.append('videoUrl', formData.videoUrl);
+      data.append('instructions', formData.instructions);
+      
+      const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+      tagsArray.forEach(tag => data.append('tags', tag));
+
+      if (imageFile) {
+        data.append('image', imageFile);
+      }
+
+      await axios.post(`${API_URL}/api/admin/exercises`, data, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
       alert("✅ Ejercicio añadido");
       onExerciseCreated();
       onClose();
       setFormData({ name: '', category: 'Movilidad', videoUrl: '', instructions: '', tags: '' });
+      setImageFile(null);
     } catch (error) {
       console.error(error);
       alert("Error al guardar ejercicio");
@@ -69,9 +84,28 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
                 </div>
             </div>
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Enlace de Video (YouTube/Vimeo)</label>
-                <input className="w-full p-2 border rounded-lg" value={formData.videoUrl} onChange={e => setFormData({...formData, videoUrl: e.target.value})} placeholder="https://youtube.com/..." />
+            <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Enlace de Video</label>
+                    <input className="w-full p-2 border rounded-lg" value={formData.videoUrl} onChange={e => setFormData({...formData, videoUrl: e.target.value})} placeholder="URL..." />
+                </div>
+                <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Imagen Portada (Opcional)</label>
+                    <div 
+                        className="border border-gray-300 rounded-lg p-2 flex items-center gap-2 cursor-pointer hover:bg-gray-50"
+                        onClick={() => fileInputRef.current.click()}
+                    >
+                        <Image size={20} className="text-gray-400" />
+                        <span className="text-xs text-gray-500 truncate">{imageFile ? imageFile.name : 'Subir imagen...'}</span>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => setImageFile(e.target.files[0])}
+                        />
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -91,4 +125,3 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated }) => {
 };
 
 export default NewExerciseModal;
-
