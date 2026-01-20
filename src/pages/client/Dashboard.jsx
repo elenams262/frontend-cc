@@ -14,26 +14,69 @@ const ClientDashboard = () => {
     // Fecha de hoy bonita
     const today = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
 
+    const [weeklyProgress, setWeeklyProgress] = useState([]);
+    const [completedCount, setCompletedCount] = useState(0);
+
     useEffect(() => {
-        const fetchWorkout = async () => {
+        const fetchData = async () => {
             try {
-                // Obtenemos las rutinas asignadas
-                const token =     localStorage.getItem('token');
-                const res = await axios.get(`${API_URL}/api/client/workouts`, {
-                    headers: { 'x-auth-token': token }
-                });
+                const token =localStorage.getItem('token');
+                const headers = { 'x-auth-token': token };
+
+                const [workoutsRes, feedbackRes] = await Promise.all([
+                    axios.get(`${API_URL}/api/client/workouts`, { headers }),
+                    axios.get(`${API_URL}/api/client/feedback`, { headers })
+                ]);
                 
-                // Tomamos la más reciente (la primera por el sort del backend)
-                if (res.data && res.data.length > 0) {
-                    setTodaysWorkout(res.data[0]);
+                // Procesar Rutina de Hoy
+                if (workoutsRes.data && workoutsRes.data.length > 0) {
+                    setTodaysWorkout(workoutsRes.data[0]);
                 }
+
+                // Procesar Progreso Semanal
+                const feedbacks = feedbackRes.data;
+                const now = new Date();
+                const dayOfWeek = now.getDay(); // 0 (Sun) - 6 (Sat)
+                const diffToMonday = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                const monday = new Date(now.setDate(diffToMonday));
+                monday.setHours(0, 0, 0, 0);
+
+                const weekDays = [];
+                let count = 0;
+                const daysLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+                for (let i = 0; i < 7; i++) {
+                    const currentDay = new Date(monday);
+                    currentDay.setDate(monday.getDate() + i);
+                    
+                    // Ver si hay feedback en este día
+                    const isCompleted = feedbacks.some(f => {
+                        const fDate = new Date(f.date);
+                        return fDate.getDate() === currentDay.getDate() &&
+                               fDate.getMonth() === currentDay.getMonth() &&
+                               fDate.getFullYear() === currentDay.getFullYear();
+                    });
+
+                    if (isCompleted) count++;
+
+                    weekDays.push({
+                        label: daysLabels[i],
+                        date: currentDay,
+                        completed: isCompleted,
+                        isToday: new Date().toDateString() === currentDay.toDateString()
+                    });
+                }
+
+                setWeeklyProgress(weekDays);
+                setCompletedCount(count);
+
             } catch (err) {
-                console.error("Error cargando rutina", err);
+                console.error("Error cargando dashboard", err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchWorkout();
+        fetchData();
     }, []);
 
     // Cálculo estimado de duración (ej: 8 min por ejercicio)
@@ -53,7 +96,7 @@ const ClientDashboard = () => {
             <section>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="font-bold text-gray-700 text-lg">Para hoy</h3>
-                    <span className="bg-brand-secondary/10 text-brand-secondary text-xs px-2 py-0.5 rounded-full font-bold">DIA 1</span>
+                    <span className="bg-brand-secondary/10 text-brand-secondary text-xs px-2 py-0.5 rounded-full font-bold">DIA {completedCount + 1}</span>
                 </div>
                 
                 {loading ? (
@@ -61,7 +104,7 @@ const ClientDashboard = () => {
                         Cargando tu plan...
                     </div>
                 ) : todaysWorkout ? (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 relative overflow-hidden group hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/client/programa')}>
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 relative overflow-hidden group hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/client/plan')}>
                         <div className="flex justify-between items-start z-10 relative">
                             <div>
                                 <h4 className="font-bold text-xl text-brand-primary mb-1">{todaysWorkout.title}</h4>
@@ -95,14 +138,18 @@ const ClientDashboard = () => {
             <section className="bg-brand-primary rounded-2xl p-5 text-white shadow-lg">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold">Tu Semana</h3>
-                    <span className="text-xs bg-white/20 px-2 py-1 rounded">1/3 Completado</span>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded">{completedCount} Entrenamientos</span>
                 </div>
                 <div className="flex justify-between gap-2">
-                    {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day, idx) => (
-                        <div key={idx} className="flex flex-col items-center gap-2">
-                            <span className="text-xs opacity-80">{day}</span>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${idx === 0 ? 'bg-brand-action text-white shadow' : 'bg-white/10'}`}>
-                                {idx === 0 ? '✓' : ''}
+                    {weeklyProgress.map((day, idx) => (
+                        <div key={idx} className={`flex flex-col items-center gap-2 ${day.isToday ? 'scale-110' : ''}`}>
+                            <span className={`text-xs ${day.isToday ? 'font-bold text-white' : 'opacity-80'}`}>{day.label}</span>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                                day.completed 
+                                    ? 'bg-brand-action text-white shadow-md' 
+                                    : (day.isToday ? 'bg-white/30 border border-white' : 'bg-white/10')
+                            }`}>
+                                {day.completed ? '✓' : ''}
                             </div>
                         </div>
                     ))}
