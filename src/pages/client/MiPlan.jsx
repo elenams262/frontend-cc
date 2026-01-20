@@ -113,62 +113,7 @@ const MiPlan = () => {
                             {isExpanded && (
                                 <div className="border-t border-gray-100 bg-gray-50/50 p-4 space-y-6 animate-fade-in">
                                     {workout.exercises.map((item, idx) => (
-                                        <div key={idx} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                                            {/* Video (si existe) */}
-                                            {item.exercise?.videoUrl && (
-                                                <div className="aspect-video w-full bg-black">
-                                                    <iframe 
-                                                        src={getEmbedUrl(item.exercise.videoUrl)} 
-                                                        title={item.exercise.name}
-                                                        className="w-full h-full" 
-                                                        frameBorder="0" 
-                                                        allowFullScreen
-                                                    ></iframe>
-                                                </div>
-                                            )}
-                                            
-                                            <div className="p-4">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-bold text-brand-primary text-lg">
-                                                        {idx + 1}. {item.exercise?.name || "Ejercicio"}
-                                                    </h4>
-                                                    <span className="bg-brand-bg text-brand-text-muted text-[10px] px-2 py-1 rounded-full uppercase font-bold tracking-wider">
-                                                        {item.exercise?.category || "General"}
-                                                    </span>
-                                                </div>
-
-                                                {/* Grid de Series/Repes */}
-                                                <div className="flex gap-2 my-3">
-                                                    <div className="bg-gray-50 px-3 py-2 rounded-lg text-center flex-1 border border-gray-100">
-                                                        <span className="block text-xs text-gray-400 uppercase font-bold">Series</span>
-                                                        <span className="font-mono font-bold text-brand-text">{item.sets}</span>
-                                                    </div>
-                                                    <div className="bg-gray-50 px-3 py-2 rounded-lg text-center flex-1 border border-gray-100">
-                                                        <span className="block text-xs text-gray-400 uppercase font-bold">Repes</span>
-                                                        <span className="font-mono font-bold text-brand-text">{item.reps}</span>
-                                                    </div>
-                                                    <div className="bg-gray-50 px-3 py-2 rounded-lg text-center flex-1 border border-gray-100">
-                                                        <span className="block text-xs text-gray-400 uppercase font-bold">Descanso</span>
-                                                        <span className="font-mono font-bold text-brand-text">{item.rest}</span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Notas e Instrucciones */}
-                                                <div className="space-y-2 text-sm">
-                                                    {item.notes && (
-                                                        <p className="text-brand-action bg-yellow-50 p-2 rounded border border-yellow-100 flex gap-2 items-start">
-                                                            <Info size={16} className="shrink-0 mt-0.5" />
-                                                            <span className="italic">"{item.notes}"</span>
-                                                        </p>
-                                                    )}
-                                                    {item.exercise?.instructions && (
-                                                        <p className="text-gray-600 leading-relaxed mt-2 text-xs">
-                                                            {item.exercise.instructions}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <ExerciseCard key={idx} item={item} index={idx} />
                                     ))}
 
                                     {/* BOTÓN FINALIZAR ENTRENAMIENTO */}
@@ -194,6 +139,130 @@ const MiPlan = () => {
                 workoutTitle={selectedWorkoutForFeedback?.title}
                 onSaved={handleFeedbackSaved}
             />
+        </div>
+    );
+};
+
+const ExerciseCard = ({ item, index }) => {
+    // Si hay imagen, mostramos imagen por defecto. Si no, intentamos mostrar video.
+    const [showVideo, setShowVideo] = useState(!item.exercise?.image);
+    
+    const getEmbedUrl = (url) => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+    };
+
+    return (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            {/* Media Area */}
+            <div className="aspect-video w-full bg-gray-100 relative">
+                {!showVideo && item.exercise?.image ? (
+                    <div className="w-full h-full relative group">
+                        <img 
+                            src={`${API_URL}/${item.exercise.image}`} 
+                            alt={item.exercise.name} 
+                            className="w-full h-full object-cover"
+                        />
+                        {item.exercise.videoUrl && (
+                            <button 
+                                onClick={() => setShowVideo(true)}
+                                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors cursor-pointer"
+                            >
+                                <div className="bg-white/90 p-3 rounded-full shadow-lg transform group-hover:scale-110 transition-transform">
+                                     <PlayCircle size={40} className="text-brand-action" />
+                                </div>
+                            </button>
+                        )}
+                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                             Portada
+                        </div>
+                    </div>
+                ) : (
+                    item.exercise?.videoUrl ? (
+                        <iframe 
+                            src={getEmbedUrl(item.exercise.videoUrl)} 
+                            title={item.exercise.name}
+                            className="w-full h-full" 
+                            frameBorder="0" 
+                            allowFullScreen
+                        ></iframe>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                            <PlayCircle size={32} className="opacity-20" />
+                            <span className="text-xs">Sin video disponible</span>
+                        </div>
+                    )
+                )}
+                
+                {/* Botón para volver a ver portada si estamos viendo video y hay portada */}
+                {showVideo && item.exercise?.image && (
+                     <button 
+                        onClick={() => setShowVideo(false)}
+                        className="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded hover:bg-black/70 transition-colors z-10"
+                     >
+                        Ver Portada
+                     </button>
+                )}
+            </div>
+            
+            <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-brand-primary text-lg">
+                        {index + 1}. {item.exercise?.name || "Ejercicio"}
+                    </h4>
+                    <span className="bg-brand-bg text-brand-text-muted text-[10px] px-2 py-1 rounded-full uppercase font-bold tracking-wider">
+                        {item.exercise?.category || "General"}
+                    </span>
+                </div>
+
+                {/* Link explícito al video si se solicita "luego tenga enlace disponible" */}
+                {item.exercise?.videoUrl && (
+                    <div className="mb-3 text-right">
+                         <a 
+                            href={item.exercise.videoUrl} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="text-xs text-brand-action hover:underline flex items-center justify-end gap-1"
+                         >
+                            Abrir video en YouTube
+                            <PlayCircle size={12} />
+                         </a>
+                    </div>
+                )}
+
+                {/* Grid de Series/Repes */}
+                <div className="flex gap-2 my-3">
+                    <div className="bg-gray-50 px-3 py-2 rounded-lg text-center flex-1 border border-gray-100">
+                        <span className="block text-xs text-gray-400 uppercase font-bold">Series</span>
+                        <span className="font-mono font-bold text-brand-text">{item.sets}</span>
+                    </div>
+                    <div className="bg-gray-50 px-3 py-2 rounded-lg text-center flex-1 border border-gray-100">
+                        <span className="block text-xs text-gray-400 uppercase font-bold">Repes</span>
+                        <span className="font-mono font-bold text-brand-text">{item.reps}</span>
+                    </div>
+                    <div className="bg-gray-50 px-3 py-2 rounded-lg text-center flex-1 border border-gray-100">
+                        <span className="block text-xs text-gray-400 uppercase font-bold">Descanso</span>
+                        <span className="font-mono font-bold text-brand-text">{item.rest}</span>
+                    </div>
+                </div>
+
+                {/* Notas e Instrucciones */}
+                <div className="space-y-2 text-sm">
+                    {item.notes && (
+                        <p className="text-brand-action bg-yellow-50 p-2 rounded border border-yellow-100 flex gap-2 items-start">
+                            <Info size={16} className="shrink-0 mt-0.5" />
+                            <span className="italic">"{item.notes}"</span>
+                        </p>
+                    )}
+                    {item.exercise?.instructions && (
+                        <p className="text-gray-600 leading-relaxed mt-2 text-xs">
+                            {item.exercise.instructions}
+                        </p>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
