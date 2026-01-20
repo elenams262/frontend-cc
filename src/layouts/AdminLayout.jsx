@@ -49,7 +49,7 @@ const AdminLayout = () => {
         <div className="flex items-center gap-3">
              <img src="/logo.png" alt="Logo" className="h-8 w-auto brightness-0 invert" />
              <div>
-                <h1 className="text-lg font-bold leading-none">Calibrado</h1>
+                <h1 className="text-lg font-bold leading-none">Calibrado Corporal</h1>
                 <p className="text-[10px] text-brand-secondary-light uppercase tracking-wider">Zona Admin</p>
              </div>
         </div>
