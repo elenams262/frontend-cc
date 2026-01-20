@@ -237,12 +237,90 @@ const TemplateBuilderModal = ({ isOpen, onClose, onTemplateCreated, templateToEd
     );
 };
 
+// Modal para Ver Detalle de Plantilla
+const TemplateDetailModal = ({ isOpen, onClose, template }) => {
+    if (!isOpen || !template) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="bg-brand-primary p-4 text-white flex justify-between items-center">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                        <Dumbbell size={24} /> {template.title}
+                    </h2>
+                    <button onClick={onClose}><X size={24} /></button>
+                </div>
+                
+                <div className="p-6 overflow-y-auto">
+                    {template.description && (
+                        <div className="mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-100 text-yellow-800">
+                             <h4 className="font-bold mb-1 text-sm uppercase tracking-wide">Descripción</h4>
+                             <p>{template.description}</p>
+                        </div>
+                    )}
+
+                    <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span>Ejercicios</span>
+                        <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">{template.exercises.length}</span>
+                    </h3>
+
+                    <div className="space-y-4">
+                        {template.exercises.map((item, idx) => (
+                           <div key={idx} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                                <div className="flex justify-between items-start mb-2">
+                                     <h4 className="font-bold text-brand-primary text-lg">
+                                        <span className="text-gray-300 mr-2">#{idx + 1}</span>
+                                        {item.exercise?.name || "Ejercicio eliminado"}
+                                     </h4>
+                                     <span className="text-xs font-bold uppercase bg-gray-100 text-gray-500 px-2 py-1 rounded">
+                                        {item.exercise?.category || "General"}
+                                     </span>
+                                </div>
+                                
+                                <div className="grid grid-cols-4 gap-2 text-center text-sm">
+                                    <div className="bg-gray-50 p-2 rounded">
+                                        <div className="text-xs text-gray-400 font-bold uppercase mb-1">Series</div>
+                                        <div className="font-mono">{item.sets}</div>
+                                    </div>
+                                    <div className="bg-gray-50 p-2 rounded">
+                                        <div className="text-xs text-gray-400 font-bold uppercase mb-1">Repes</div>
+                                        <div className="font-mono">{item.reps}</div>
+                                    </div>
+                                    <div className="bg-gray-50 p-2 rounded">
+                                        <div className="text-xs text-gray-400 font-bold uppercase mb-1">Descanso</div>
+                                        <div className="font-mono">{item.rest}</div>
+                                    </div>
+                                    <div className="bg-gray-50 p-2 rounded col-span-1">
+                                         <div className="text-xs text-gray-400 font-bold uppercase mb-1">Notas</div>
+                                         <div className="truncate" title={item.notes}>{item.notes || "-"}</div>
+                                    </div>
+                                </div>
+                                {item.exercise?.videoUrl && (
+                                    <div className="mt-3 text-right">
+                                        <a href={item.exercise.videoUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-action hover:underline flex items-center justify-end gap-1">
+                                            Ver vídeo <ChevronRight size={12} />
+                                        </a>
+                                    </div>
+                                )}
+                           </div> 
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Componente Principal de la Página
 const Programas = () => {
     const [templates, setTemplates] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [editingTemplate, setEditingTemplate] = useState(null);
+    
+    // Estado para ver detalle
+    const [viewingTemplate, setViewingTemplate] = useState(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
 
     const fetchTemplates = async () => {
         try {
@@ -262,6 +340,11 @@ const Programas = () => {
     const handleEdit = (tpl) => {
         setEditingTemplate(tpl);
         setShowModal(true);
+    };
+
+    const handleViewDetail = (tpl) => {
+        setViewingTemplate(tpl);
+        setShowDetailModal(true);
     };
 
     const handleDelete = async (id) => {
@@ -320,7 +403,7 @@ const Programas = () => {
                             
                             <div className="border-t border-gray-50 pt-3 flex justify-between items-center text-xs text-gray-400 uppercase font-bold tracking-wider">
                                 <span>{tpl.exercises?.length || 0} Ejercicios</span>
-                                <span className="flex items-center gap-1 hover:text-brand-primary cursor-pointer">Ver detalle <ChevronRight size={14} /></span>
+                                <span onClick={() => handleViewDetail(tpl)} className="flex items-center gap-1 hover:text-brand-primary cursor-pointer">Ver detalle <ChevronRight size={14} /></span>
                             </div>
                         </div>
                     ))}
@@ -337,6 +420,12 @@ const Programas = () => {
                 onClose={() => setShowModal(false)} 
                 onTemplateCreated={fetchTemplates}
                 templateToEdit={editingTemplate}
+            />
+
+            <TemplateDetailModal 
+                isOpen={showDetailModal}
+                onClose={() => setShowDetailModal(false)}
+                template={viewingTemplate}
             />
         </div>
     );
