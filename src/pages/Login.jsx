@@ -1,6 +1,6 @@
 import { API_URL } from '../config/api';
 import { useState } from 'react';
-import { User, Dumbbell, ArrowRight } from 'lucide-react';
+import { User, ChartNoAxesCombined, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom'; // <--- IMPORTANTE: Importamos esto
 
@@ -126,7 +126,7 @@ const Login = () => {
                 className="w-full flex items-center p-4 border-2 border-transparent hover:border-brand-secondary bg-brand-bg-light rounded-xl transition-all group"
               >
                 <div className="bg-white p-3 rounded-full shadow-sm text-brand-primary group-hover:text-brand-action">
-                  <Dumbbell size={24} />
+                  <ChartNoAxesCombined size={24} />
                 </div>
                 <span className="ml-4 text-lg font-medium text-brand-text">Davi Martínez</span>
                 <ArrowRight className="ml-auto text-gray-400 group-hover:text-brand-primary" size={20} />
