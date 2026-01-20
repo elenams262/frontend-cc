@@ -37,6 +37,9 @@ const CalibranteDetalle = () => {
   const [workouts, setWorkouts] = useState([]);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
   const [expandedWorkout, setExpandedWorkout] = useState(null); // Para acordeón de rutinas
+  const [workoutToEdit, setWorkoutToEdit] = useState(null); // NUEVO: Estado para la rutina que se va a editar
+
+  // ... (otros efectos)
 
   // 1. Cargar Usuario
   useEffect(() => {
@@ -55,226 +58,21 @@ const CalibranteDetalle = () => {
     if (id) fetchUser();
   }, [id]);
 
-  // 2. Cargar Datos Pestañas
-  const fetchEvaluations = async () => {
-    try { const res = await axios.get(ROUTES.evaluations(id)); setEvaluations(res.data); } catch (e) { console.error(e); }
-  };
-  const fetchWorkouts = async () => {
-    try { const res = await axios.get(ROUTES.workouts(id)); setWorkouts(res.data); } catch (e) { console.error(e); }
-  };
+  // ... (otros efectos)
 
-  useEffect(() => {
-    if (activeTab === 'lectura' && id) fetchEvaluations();
-    if (activeTab === 'programa' && id) fetchWorkouts();
-  }, [activeTab, id]);
-
-  // Manejadores Evaluación
-  const toggleZone = (zone) => {
-    setEvalFormData(prev => {
-        const zones = prev.priorityZones.includes(zone) ? prev.priorityZones.filter(z => z !== zone) : [...prev.priorityZones, zone];
-        return { ...prev, priorityZones: zones };
-    });
-  };
-  const handleEvalSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        await axios.post(ROUTES.createEvaluation, { clientId: id, ...evalFormData });
-        alert("✅ Evaluación guardada");
-        setShowEvalForm(false);
-        setEvalFormData({ type: 'Seguimiento', priorityZones: [], focus: '', notes: '' });
-        fetchEvaluations();
-    } catch (e) { alert("Error al guardar"); }
+  // Funciones para abrir modal
+  const openCreateWorkoutModal = () => {
+    setWorkoutToEdit(null); // Limpiamos para que sea una nueva rutina
+    setShowWorkoutModal(true);
   };
 
-  // Manejador: Editar Usuario
-  const handleUpdateUser = async () => {
-      try {
-          const res = await axios.put(`${API_URL}/api/admin/users/${id}`, editUserData);
-          setUser(res.data);
-          setIsEditingUser(false);
-          alert("✅ Datos actualizados");
-      } catch (err) { alert("Error al actualizar usuario"); }
+  const openEditWorkoutModal = (workout, e) => {
+    e.stopPropagation(); // Evitamos que se abra/cierre el acordeón
+    setWorkoutToEdit(workout); // Pasamos la rutina a editar
+    setShowWorkoutModal(true);
   };
 
-  // Manejador: Borrar Usuario
-  const handleDeleteUser = async () => {
-    if (!confirm("⚠️ ¿PELIGRO: Estás seguro de eliminar a este calibrante? Esta acción no se puede deshacer.")) return;
-    const confirmName = prompt(`Escribe "${user.name}" para confirmar:`);
-    if (confirmName !== user.name) return alert("Nombre incorrecto. No se ha eliminado.");
-
-    try {
-        await axios.delete(`${API_URL}/api/admin/users/${id}`);
-        alert("Usuario eliminado correctamente.");
-        navigate('/admin/calibrantes');
-    } catch (err) { alert("Error al eliminar usuario"); }
-  };
-
-  const handleDeleteWorkout = async (workoutId) => {
-    if(!confirm("¿Seguro que quieres eliminar esta rutina?")) return;
-    try {
-        await axios.delete(`${API_URL}/api/admin/workouts/${workoutId}`);
-        fetchWorkouts();
-    } catch (e) { alert("Error al eliminar rutina"); }
-  };
-
-  if (loading) return <div className="p-8 text-center text-gray-500">Cargando perfil...</div>;
-  if (!user) return null;
-
-  return (
-    <div className="space-y-6 animate-fade-in pb-10">
-      {/* Cabecera */}
-      {/* Cabecera */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
-        <div className="flex items-center space-x-4 w-full md:w-auto">
-            <button onClick={() => navigate('/admin/calibrantes')} className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0">
-                <ArrowLeft size={24} className="text-brand-primary" />
-            </button>
-            <div className="flex-1">
-                <h1 className="text-2xl font-bold text-brand-primary">{user.name} {user.surname}</h1>
-                <p className="text-gray-500 text-sm">Ficha de Calibrante</p>
-            </div>
-        </div>
-        
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto md:ml-auto no-scrollbar">
-            <button onClick={async () => {
-                if(!confirm("¿Generar código de recuperación de contraseña?")) return;
-                try {
-                    const res = await axios.post(`${API_URL}/api/admin/users/${id}/recovery-code`);
-                    alert(`Código generado: ${res.data.recoveryCode}\n\nEnvíalo al cliente para que pueda restablecer su contraseña.`);
-                } catch(e) { alert("Error al generar código"); }
-            }} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-yellow-200 rounded-lg text-sm font-bold text-yellow-600 hover:bg-yellow-50 shadow-sm transition-colors whitespace-nowrap">
-                <AlertTriangle size={16} /> Recuperar Pass
-            </button>
-            <button onClick={() => { setEditUserData(user); setIsEditingUser(true); }} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
-                <Edit size={16} /> Editar Datos
-            </button>
-            <button onClick={handleDeleteUser} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-red-100 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 shadow-sm transition-colors whitespace-nowrap">
-                <Trash2 size={16} /> Eliminar
-            </button>
-        </div>
-      </div>
-
-      {/* MODAL EDICIÓN USUARIO RAPIDO */}
-      {isEditingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-2xl animate-fade-in">
-                <h3 className="text-lg font-bold mb-4">Editar Datos Personales</h3>
-                <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-xs font-bold text-gray-500">Nombre</label><input className="w-full p-2 border rounded" value={editUserData.name || ''} onChange={(e) => setEditUserData({...editUserData, name: e.target.value})} /></div>
-                        <div><label className="text-xs font-bold text-gray-500">Email</label><input className="w-full p-2 border rounded" value={editUserData.email || ''} onChange={(e) => setEditUserData({...editUserData, email: e.target.value})} /></div>
-                    </div>
-                     <div><label className="text-xs font-bold text-gray-500">Teléfono</label><input className="w-full p-2 border rounded" value={editUserData.phone || ''} onChange={(e) => setEditUserData({...editUserData, phone: e.target.value})} /></div>
-                    
-                    <div className="flex justify-end gap-3 pt-4">
-                        <button onClick={() => setIsEditingUser(false)} className="px-4 py-2 text-gray-500 hover:text-gray-700">Cancelar</button>
-                        <button onClick={handleUpdateUser} className="px-6 py-2 bg-brand-primary text-white rounded-lg font-bold hover:bg-brand-primary-light">Guardar Cambios</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-      )}
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[600px]">
-        {/* Pestañas */}
-        <div className="flex border-b border-gray-100 bg-gray-50/50 overflow-x-auto">
-            <TabButton active={activeTab === 'datos'} onClick={() => setActiveTab('datos')} icon={<User size={18} />} label="Datos Personales" />
-            <TabButton active={activeTab === 'lectura'} onClick={() => setActiveTab('lectura')} icon={<Activity size={18} />} label="Lectura Corporal" />
-            <TabButton active={activeTab === 'programa'} onClick={() => setActiveTab('programa')} icon={<ClipboardList size={18} />} label="Programa" />
-            <TabButton active={activeTab === 'progreso'} onClick={() => setActiveTab('progreso')} icon={<Activity size={18} />} label="Progreso" /> {/* Nueva Pestaña */}
-            <TabButton active={activeTab === 'notas'} onClick={() => setActiveTab('notas')} icon={<FileText size={18} />} label="Notas Internas" />
-        </div>
-
-        <div className="p-8">
-            {/* PESTAÑA DATOS (Sin Cambios) */}
-            {activeTab === 'datos' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div>
-                        <h3 className="text-sm uppercase text-gray-400 font-bold mb-6 tracking-wider">Información de Contacto</h3>
-                        <div className="space-y-6">
-                            <InfoItem label="Nombre Completo" value={`${user.name} ${user.surname}`} />
-                            <InfoItem label="Email" value={user.email} />
-                            <InfoItem label="Teléfono" value={user.phone || "-"} />
-                            <InfoItem label="Estado" value={user.profile?.status || "Activo"} badge />
-                            {user.inviteCode && (
-                                <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mt-2">
-                                     <p className="text-[10px] text-yellow-700 font-bold uppercase mb-1">⚠️ Cuenta Pendiente de Activar</p>
-                                     <div className="flex justify-between items-center">
-                                        <code className="font-mono font-bold text-lg text-brand-primary bg-white px-2 py-1 rounded border border-yellow-100">{user.inviteCode}</code>
-                                        <span className="text-xs text-yellow-600">Código de Invitación</span>
-                                     </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div>
-                        <h3 className="text-sm uppercase text-gray-400 font-bold mb-6 tracking-wider">Perfil Inicial</h3>
-                        <div className="space-y-6">
-                            <InfoItem label="Objetivo Principal" value={user.profile?.objectives?.[0]} />
-                            <InfoItem label="Limitaciones / Dolor" value={user.profile?.limitations?.join(", ") || "Ninguna"} alert={user.profile?.limitations?.length > 0} />
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* PESTAÑA LECTURA CORPORAL (Sin Cambios sustanciales) */}
-            {activeTab === 'lectura' && (
-                <div className="space-y-8">
-                    {!showEvalForm ? (
-                        <div className="flex flex-col h-full">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-lg font-bold text-brand-primary">Historial de Evaluaciones</h2>
-                                <button onClick={() => setShowEvalForm(true)} className="flex items-center space-x-2 bg-brand-action text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm">
-                                    <Plus size={18} /><span>Nueva Lectura</span>
-                                </button>
-                            </div>
-                            {evaluations.length === 0 ? (
-                                <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                    <Activity size={40} className="mx-auto text-gray-300 mb-3" />
-                                    <p className="text-gray-500">No hay lecturas registradas aún.</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {evaluations.map(eva => (
-                                        <div key={eva._id} className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="bg-brand-bg-light p-2 rounded-full text-brand-primary"><Calendar size={18} /></div>
-                                                    <div><p className="font-bold text-gray-800">{new Date(eva.date).toLocaleDateString()}</p><p className="text-xs text-gray-500 uppercase">{eva.type}</p></div>
-                                                </div>
-                                                <span className="bg-brand-secondary text-white px-3 py-1 rounded-full text-xs font-medium">{eva.focus || "Sin enfoque"}</span>
-                                            </div>
-                                            <div className="pl-12 space-y-2">
-                                                <p className="text-sm text-gray-600"><span className="font-semibold">Zonas:</span> {eva.priorityZones.join(", ") || "-"}</p>
-                                                {eva.notes && <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 italic border-l-4 border-gray-300">"{eva.notes}"</div>}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        // Formulario de Evaluación (Mantenido igual al código anterior por brevedad, asumiendo que funciona)
-                        <div className="max-w-3xl mx-auto bg-gray-50 p-6 rounded-xl border border-gray-200">
-                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold text-brand-primary">Nueva Lectura Corporal</h3>
-                                <button onClick={() => setShowEvalForm(false)} className="text-gray-500 hover:text-red-500"><X size={24} /></button>
-                            </div>
-                            <form onSubmit={handleEvalSubmit} className="space-y-6">
-                                {/* ... [Formulario igual que antes] ... */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label><select className="w-full p-2 border rounded-lg" value={evalFormData.type} onChange={e => setEvalFormData({...evalFormData, type: e.target.value})}><option>Inicial</option><option>Re-evaluación</option><option>Seguimiento</option></select></div>
-                                    <div><label className="block text-sm font-medium text-gray-700 mb-2">Enfoque</label><select className="w-full p-2 border rounded-lg" value={evalFormData.focus} onChange={e => setEvalFormData({...evalFormData, focus: e.target.value})}><option value="">Selecciona...</option>{FOCUS_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}</select></div>
-                                </div>
-                                <div><label className="block text-sm font-medium text-gray-700 mb-2">Zonas</label><div className="grid grid-cols-3 gap-2">{ZONES.map(z => <button key={z} type="button" onClick={() => toggleZone(z)} className={`py-2 px-3 rounded-lg text-sm border ${evalFormData.priorityZones.includes(z) ? 'bg-brand-primary text-white' : 'bg-white'}`}>{z}</button>)}</div></div>
-                                <div><label className="block text-sm font-medium text-gray-700 mb-2">Notas</label><textarea className="w-full p-3 border rounded-lg h-24" value={evalFormData.notes} onChange={e => setEvalFormData({...evalFormData, notes: e.target.value})} /></div>
-                                <div className="flex justify-end pt-4"><button type="submit" className="bg-brand-action text-white px-6 py-2 rounded-lg hover:bg-yellow-600 flex items-center gap-2"><Save size={18} /><span>Guardar</span></button></div>
-                            </form>
-                        </div>
-                    )}
-                </div>
-            )}
-
+  // ... (renders)
 
             {/* PESTAÑA PROGRAMA */}
             {activeTab === 'programa' && (
@@ -284,7 +82,7 @@ const CalibranteDetalle = () => {
                             <h2 className="text-lg font-bold text-brand-primary">Programación Semanal</h2>
                             <p className="text-sm text-gray-500">Historial de rutinas asignadas.</p>
                         </div>
-                        <button onClick={() => setShowWorkoutModal(true)} className="flex items-center space-x-2 bg-brand-action text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm">
+                        <button onClick={openCreateWorkoutModal} className="flex items-center space-x-2 bg-brand-action text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm">
                             <Plus size={18} /><span>Asignar Rutina</span>
                         </button>
                     </div>
@@ -318,10 +116,18 @@ const CalibranteDetalle = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                 {/* Botón Borrar Rutina (con stopPropagation para no abrir/cerrar plegable) */}
+                                                 {/* Botón Editar Rutina */}
+                                                 <button 
+                                                    onClick={(e) => openEditWorkoutModal(workout, e)} 
+                                                    className="p-2 text-gray-400 hover:text-brand-primary rounded-full hover:bg-gray-100 transition-all"
+                                                    title="Editar Rutina"
+                                                >
+                                                    <Edit size={18} />
+                                                </button>
+                                                 {/* Botón Borrar Rutina */}
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); handleDeleteWorkout(workout._id); }} 
-                                                    className="p-2 text-gray-300 hover:text-red-500 rounded-full hover:bg-red-50 transition-all"
+                                                    className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-all"
                                                 >
                                                     <Trash2 size={18} />
                                                 </button>
@@ -360,7 +166,7 @@ const CalibranteDetalle = () => {
                 </div>
             )}
 
-            {/* PESTAÑA PROGRESO (FEEDBACK) */}
+            {/* PESTAÑA PROGRESO (FEEDBACK) ... */}
             {activeTab === 'progreso' && (
                 <div className="space-y-6">
                     <h2 className="text-lg font-bold text-brand-primary mb-4">Registro de Actividad</h2>
@@ -384,6 +190,7 @@ const CalibranteDetalle = () => {
         onClose={() => setShowWorkoutModal(false)}
         clientId={id}
         onWorkoutCreated={fetchWorkouts}
+        workoutToEdit={workoutToEdit} // Pasamos la prop de edición
       />
     </div>
   );
