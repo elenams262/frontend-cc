@@ -104,7 +104,7 @@ const ClientDashboard = () => {
                         Cargando tu plan...
                     </div>
                 ) : todaysWorkout ? (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 relative overflow-hidden group hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/client/plan')}>
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 relative overflow-hidden group hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/client/programa')}>
                         <div className="flex justify-between items-start z-10 relative">
                             <div>
                                 <h4 className="font-bold text-xl text-brand-primary mb-1">{todaysWorkout.title}</h4>
