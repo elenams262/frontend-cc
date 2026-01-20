@@ -128,7 +128,7 @@ const Login = () => {
                 <div className="bg-white p-3 rounded-full shadow-sm text-brand-primary group-hover:text-brand-action">
                   <Dumbbell size={24} />
                 </div>
-                <span className="ml-4 text-lg font-medium text-brand-text">Soy Calibradora</span>
+                <span className="ml-4 text-lg font-medium text-brand-text">Davi Martínez</span>
                 <ArrowRight className="ml-auto text-gray-400 group-hover:text-brand-primary" size={20} />
               </button>
             </div>
