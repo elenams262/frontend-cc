@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, ChevronUp, PlayCircle, Clock, Info, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import FeedbackModal from '../../components/FeedbackModal';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const MiPlan = () => {
     const [workouts, setWorkouts] = useState([]);
@@ -161,7 +162,7 @@ const ExerciseCard = ({ item, index }) => {
                 {!showVideo && item.exercise?.image ? (
                     <div className="w-full h-full relative group">
                         <img 
-                            src={`${API_URL}/${item.exercise.image}`} 
+                            src={getImageUrl(item.exercise.image)} 
                             alt={item.exercise.name} 
                             className="w-full h-full object-cover"
                         />

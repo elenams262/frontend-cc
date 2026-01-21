@@ -5,6 +5,7 @@ import { Search, Plus, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; // <--- Importado para redirigir
 import axios from 'axios';
 import NewCalibranteModal from '../../components/NewCalibranteModal';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const Calibrantes = () => {
     const navigate = useNavigate(); // <--- Hook de navegación
@@ -88,7 +89,7 @@ const Calibrantes = () => {
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                                         {user.avatar ? (
-                                            <img src={`${API_URL}/${user.avatar}`} alt={user.name} className="w-full h-full object-cover" />
+                                            <img src={getImageUrl(user.avatar)} alt={user.name} className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-gray-100">
                                                 {user.name.charAt(0)}
