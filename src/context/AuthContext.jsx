@@ -1,6 +1,7 @@
 import { API_URL } from '../config/api';
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import FullPageLoader from '../components/FullPageLoader';
 
 const AuthContext = createContext();
 
@@ -71,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading, setUser }}>
-      {!loading && children}
+      {loading ? <FullPageLoader /> : children}
     </AuthContext.Provider>
   );
 };
