@@ -1,4 +1,5 @@
 import { API_URL } from '../config/api';
+import { getImageUrl } from '../utils/imageUtils';
 import { Outlet, Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Users, BookOpen, Dumbbell, LayoutDashboard, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -57,7 +58,7 @@ const AdminLayout = () => {
              <div className="relative group">
                 <div className="w-8 h-8 rounded-full bg-brand-secondary flex items-center justify-center text-brand-primary font-bold overflow-hidden border-2 border-white/20">
                      {user?.avatar ? (
-                        <img src={`${API_URL}/${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={getImageUrl(user.avatar)} alt="Profile" className="w-full h-full object-cover" />
                      ) : (
                         <span>{user?.name?.[0] || 'A'}</span>
                      )}
@@ -108,7 +109,7 @@ const AdminLayout = () => {
                 <div className="relative group">
                     <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center text-brand-primary font-bold overflow-hidden border-2 border-white/20">
                          {user?.avatar ? (
-                            <img src={`${API_URL}/${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
+                            <img src={getImageUrl(user.avatar)} alt="Profile" className="w-full h-full object-cover" />
                          ) : (
                             <span>{user?.name?.[0] || 'D'}</span>
                          )}

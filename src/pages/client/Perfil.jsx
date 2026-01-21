@@ -1,4 +1,5 @@
 import { API_URL } from '../../config/api';
+import { getImageUrl } from '../../utils/imageUtils';
 import { useAuth } from '../../context/AuthContext';
 import { User, Mail, LogOut, Settings, Bell, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +27,7 @@ const Perfil = () => {
                 <div className="relative">
                     <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center text-brand-primary border-2 border-brand-primary/10 overflow-hidden">
                          {user.avatar ? (
-                            <img src={`${API_URL}/${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                            <img src={getImageUrl(user.avatar)} alt="Avatar" className="w-full h-full object-cover" />
                          ) : (
                             <User size={32} />
                          )}

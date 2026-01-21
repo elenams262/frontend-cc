@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, PlayCircle, Filter, Trash2, Pencil } from 'lucide-react';
 import axios from 'axios';
 import NewExerciseModal from '../../components/NewExerciseModal';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const Ejercicios = () => {
   const [exercises, setExercises] = useState([]);
@@ -134,7 +135,7 @@ const Ejercicios = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {filteredExercises.map(ex => {
                     // Prioridad: Imagen subida > Miniatura YouTube > Placeholder
-                    let thumb = ex.image ? `${API_URL}/${ex.image}` : null;
+                    let thumb = ex.image ? getImageUrl(ex.image) : null;
                     if (!thumb) thumb = getYoutubeThumbnail(ex.videoUrl);
 
                     return (
