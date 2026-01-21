@@ -138,6 +138,7 @@ const MiPlan = () => {
                 onClose={() => setShowFeedbackModal(false)}
                 workoutId={selectedWorkoutForFeedback?._id}
                 workoutTitle={selectedWorkoutForFeedback?.title}
+                exercises={selectedWorkoutForFeedback?.exercises || []}
                 onSaved={handleFeedbackSaved}
             />
         </div>

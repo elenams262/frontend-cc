@@ -445,6 +445,22 @@ const FeedbackList = ({ clientId }) => {
                             "{log.comments}"
                         </div>
                     )}
+                    {/* Visualización de Cargas (si existen) */}
+                    {log.exercisesData && log.exercisesData.length > 0 && (
+                        <div className="mt-3 border-t border-gray-100 pt-2">
+                            <p className="text-xs font-bold text-gray-500 mb-2 uppercase">Cargas / Pesos Utilizados:</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {log.exercisesData.map((exData, idx) => (
+                                    exData.weightUsed && (
+                                        <div key={idx} className="flex justify-between text-xs bg-gray-50 p-2 rounded border border-gray-100">
+                                            <span className="text-gray-600 truncate mr-2">{exData.exerciseName || "Ejercicio"}</span>
+                                            <span className="font-bold text-brand-primary whitespace-nowrap">{exData.weightUsed}</span>
+                                        </div>
+                                    )
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             ))}
         </div>
