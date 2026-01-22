@@ -173,10 +173,69 @@ const CalibranteDetalle = () => {
                 <h3 className="text-lg font-bold mb-4">Editar Datos Personales</h3>
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-xs font-bold text-gray-500">Nombre</label><input className="w-full p-2 border rounded" value={editUserData.name || ''} onChange={(e) => setEditUserData({...editUserData, name: e.target.value})} /></div>
-                        <div><label className="text-xs font-bold text-gray-500">Email</label><input className="w-full p-2 border rounded" value={editUserData.email || ''} onChange={(e) => setEditUserData({...editUserData, email: e.target.value})} /></div>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500">Nombre</label>
+                            <input 
+                                className="w-full p-2 border rounded" 
+                                value={editUserData.name || ''} 
+                                onChange={(e) => setEditUserData({...editUserData, name: e.target.value})} 
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500">Apellidos</label>
+                            <input 
+                                className="w-full p-2 border rounded" 
+                                value={editUserData.surname || ''} 
+                                onChange={(e) => setEditUserData({...editUserData, surname: e.target.value})} 
+                            />
+                        </div>
                     </div>
-                     <div><label className="text-xs font-bold text-gray-500">Teléfono</label><input className="w-full p-2 border rounded" value={editUserData.phone || ''} onChange={(e) => setEditUserData({...editUserData, phone: e.target.value})} /></div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-xs font-bold text-gray-500">Email</label>
+                            <input 
+                                className="w-full p-2 border rounded" 
+                                value={editUserData.email || ''} 
+                                onChange={(e) => setEditUserData({...editUserData, email: e.target.value})} 
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500">Teléfono</label>
+                            <input 
+                                className="w-full p-2 border rounded" 
+                                value={editUserData.phone || ''} 
+                                onChange={(e) => setEditUserData({...editUserData, phone: e.target.value})} 
+                            />
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4 mt-2">
+                        <label className="text-xs font-bold text-brand-primary uppercase mb-1 block">Objetivo Principal</label>
+                        <input 
+                            className="w-full p-2 border rounded" 
+                            placeholder="Ej: Aumentar masa muscular"
+                            value={editUserData.profile?.objectives?.[0] || ''} 
+                            onChange={(e) => setEditUserData({
+                                ...editUserData, 
+                                profile: { ...(editUserData.profile || {}), objectives: [e.target.value] } 
+                            })} 
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-xs font-bold text-red-500 uppercase mb-1 block">Limitaciones / Dolor</label>
+                        <input 
+                            className="w-full p-2 border rounded border-red-100 bg-red-50" 
+                            placeholder="Ej: Rodilla derecha, Lumbar (separar por comas)"
+                            value={editUserData.profile?.limitations?.join(", ") || ''} 
+                            onChange={(e) => setEditUserData({
+                                ...editUserData, 
+                                profile: { ...(editUserData.profile || {}), limitations: e.target.value.split(',').map(s => s.trim()) } 
+                            })} 
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">Separa varias limitaciones con comas.</p>
+                    </div>
                     
                     <div className="flex justify-end gap-3 pt-4">
                         <button onClick={() => setIsEditingUser(false)} className="px-4 py-2 text-gray-500 hover:text-gray-700">Cancelar</button>
