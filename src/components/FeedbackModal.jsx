@@ -122,4 +122,5 @@ const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, exercises = [
     );
 };
 
+
 export default FeedbackModal;
