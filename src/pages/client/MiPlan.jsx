@@ -20,8 +20,9 @@ const MiPlan = () => {
                 const resWorkouts = await axios.get(`${API_URL}/api/client/workouts`, {
                     headers: { 'x-auth-token': localStorage.getItem('token') }
                 });
-                setWorkouts(resWorkouts.data);
-                if (resWorkouts.data.length > 0) setExpandedWorkout(resWorkouts.data[0]._id);
+                const workoutsData = Array.isArray(resWorkouts.data) ? resWorkouts.data : [];
+                setWorkouts(workoutsData);
+                if (workoutsData.length > 0) setExpandedWorkout(workoutsData[0]._id);
 
                 // 2. Obtener Feedback Histórico y filtrar por HOY
                 const resFeedback = await axios.get(`${API_URL}/api/client/feedback`, {
@@ -33,10 +34,12 @@ const MiPlan = () => {
                 
                 resFeedback.data.forEach(fb => {
                     const fbDate = new Date(fb.date).toDateString();
-                    if (fbDate === today) {
-                        feedbackMap[fb.workout._id || fb.workout] = fb; 
-                        // fb.workout might be populated (object) or ID (string) depending on backend. 
-                        // clientRoutes.js line 53 says .populate('workout', 'title'). So fb.workout is an object with _id.
+                    if (fbDate === today && fb.workout) {
+                        // fb.workout can be populated object or ID string
+                        const workoutId = fb.workout._id || fb.workout;
+                        if (workoutId) {
+                            feedbackMap[workoutId] = fb; 
+                        }
                     }
                 });
                 setTodaysFeedback(feedbackMap);
