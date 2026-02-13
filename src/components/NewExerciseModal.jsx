@@ -117,8 +117,14 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
       const image = new window.Image();
       image.addEventListener('load', () => resolve(image));
       image.addEventListener('error', (error) => reject(new Error(`No se pudo cargar la imagen`)));
-      image.setAttribute('crossOrigin', 'anonymous'); 
-      image.src = url + '?' + new Date().getTime(); // Avoid cache for CORS
+      
+      // Solo configurar crossOrigin y cache-bust si no es una data URL
+      if (!url.startsWith('data:')) {
+          image.setAttribute('crossOrigin', 'anonymous'); 
+          image.src = url + '?' + new Date().getTime();
+      } else {
+          image.src = url;
+      }
     });
 
   const handleSubmit = async (e) => {
