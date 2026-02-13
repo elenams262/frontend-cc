@@ -3,7 +3,7 @@ import { API_URL } from '../../config/api';
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, FileText, Activity, ClipboardList, AlertTriangle, Plus, X, Save, Calendar, Clock, Dumbbell, ChevronUp, ChevronDown, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, User, FileText, Activity, ClipboardList, AlertTriangle, Plus, X, Save, Calendar, Clock, Dumbbell, ChevronUp, ChevronDown, Trash2, Edit, ArrowUp, ArrowDown } from 'lucide-react';
 import axios from 'axios';
 import WorkoutBuilderModal from '../../components/WorkoutBuilderModal';
 
@@ -128,6 +128,35 @@ const CalibranteDetalle = () => {
     e.stopPropagation(); // Evitamos que se abra/cierre el acordeón
     setWorkoutToEdit(workout); // Pasamos la rutina a editar
     setShowWorkoutModal(true);
+  };
+
+  // Manejador: Reordenar Rutina
+  const handleReorderWorkout = async (index, direction, e) => {
+    e.stopPropagation();
+    
+    const newWorkouts = [...workouts];
+    if (direction === 'up' && index > 0) {
+        [newWorkouts[index - 1], newWorkouts[index]] = [newWorkouts[index], newWorkouts[index - 1]];
+    } else if (direction === 'down' && index < newWorkouts.length - 1) {
+        [newWorkouts[index + 1], newWorkouts[index]] = [newWorkouts[index], newWorkouts[index + 1]];
+    } else {
+        return; 
+    }
+
+    setWorkouts(newWorkouts);
+
+    const updates = newWorkouts.map((w, idx) => ({
+        _id: w._id,
+        order: (idx + 1) * 10
+    }));
+
+    try {
+        await axios.put(`${API_URL}/api/admin/workouts/reorder`, { updates });
+    } catch (err) {
+        console.error("Error reordering:", err);
+        alert("Error al guardar el nuevo orden");
+        fetchWorkouts(); 
+    }
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500">Cargando perfil...</div>;
@@ -384,6 +413,23 @@ const CalibranteDetalle = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
+                                                 {/* Botones Reordenar */}
+                                                 <div className="flex flex-col gap-1 mr-2">
+                                                    <button 
+                                                        onClick={(e) => handleReorderWorkout(index, 'up', e)}
+                                                        disabled={index === 0}
+                                                        className={`p-1 rounded hover:bg-gray-100 ${index === 0 ? 'text-gray-200 cursor-not-allowed' : 'text-gray-400 hover:text-brand-primary'}`}
+                                                    >
+                                                        <ArrowUp size={14} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => handleReorderWorkout(index, 'down', e)}
+                                                        disabled={index === workouts.length - 1}
+                                                        className={`p-1 rounded hover:bg-gray-100 ${index === workouts.length - 1 ? 'text-gray-200 cursor-not-allowed' : 'text-gray-400 hover:text-brand-primary'}`}
+                                                    >
+                                                        <ArrowDown size={14} />
+                                                    </button>
+                                                 </div>
                                                  {/* Botón Editar Rutina */}
                                                  <button 
                                                     onClick={(e) => openEditWorkoutModal(workout, e)} 
