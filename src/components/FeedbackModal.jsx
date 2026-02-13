@@ -1,7 +1,7 @@
 import { API_URL } from '../config/api';
 /* eslint-disable react/prop-types */
 import { X, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, exercises = [], feedbackData, onSaved }) => {
