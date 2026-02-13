@@ -1,6 +1,6 @@
 import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, ChevronUp, PlayCircle, Clock, Info, CheckCircle } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, PlayCircle, Clock, Info, CheckCircle, Save, Check } from 'lucide-react';
 import axios from 'axios';
 import FeedbackModal from '../../components/FeedbackModal';
 import { getImageUrl } from '../../utils/imageUtils';
@@ -11,25 +11,65 @@ const MiPlan = () => {
     const [error, setError] = useState(null); // Nuevo estado de error
     const [expandedWorkout, setExpandedWorkout] = useState(null);
 
+    const [todaysFeedback, setTodaysFeedback] = useState({}); // Map: workoutId -> feedbackDoc
+
     useEffect(() => {
-        const fetchWorkouts = async () => {
+        const fetchData = async () => {
             try {
-                // Obtenemos las rutinas del usuario logueado
-                const res = await axios.get(`${API_URL}/api/client/workouts`, {
-                    headers: { 'x-auth-token': localStorage.getItem('token') } // Aseguramos enviar el token
+                // 1. Obtener Workouts
+                const resWorkouts = await axios.get(`${API_URL}/api/client/workouts`, {
+                    headers: { 'x-auth-token': localStorage.getItem('token') }
                 });
-                setWorkouts(res.data);
-                if (res.data.length > 0) setExpandedWorkout(res.data[0]._id);
+                setWorkouts(resWorkouts.data);
+                if (resWorkouts.data.length > 0) setExpandedWorkout(resWorkouts.data[0]._id);
+
+                // 2. Obtener Feedback Histórico y filtrar por HOY
+                const resFeedback = await axios.get(`${API_URL}/api/client/feedback`, {
+                    headers: { 'x-auth-token': localStorage.getItem('token') }
+                });
+                
+                const today = new Date().toDateString();
+                const feedbackMap = {};
+                
+                resFeedback.data.forEach(fb => {
+                    const fbDate = new Date(fb.date).toDateString();
+                    if (fbDate === today) {
+                        feedbackMap[fb.workout._id || fb.workout] = fb; 
+                        // fb.workout might be populated (object) or ID (string) depending on backend. 
+                        // clientRoutes.js line 53 says .populate('workout', 'title'). So fb.workout is an object with _id.
+                    }
+                });
+                setTodaysFeedback(feedbackMap);
+
             } catch (error) {
-                console.error("Error cargando plan:", error);
-                setError(error.message || "Error desconocido"); // Guardamos el mensaje
+                console.error("Error cargando datos:", error);
+                setError(error.message || "Error desconocido");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchWorkouts();
+        fetchData();
     }, []);
+
+    const handleFeedbackUpdate = (workoutId, data) => {
+        setTodaysFeedback(prev => {
+            const workoutFeedback = prev[workoutId] || { exercisesData: [] };
+            const existingIndex = workoutFeedback.exercisesData.findIndex(ex => ex.exerciseId === data.exerciseId);
+            
+            let newExercisesData = [...(workoutFeedback.exercisesData || [])];
+            if (existingIndex > -1) {
+                newExercisesData[existingIndex] = { ...newExercisesData[existingIndex], ...data };
+            } else {
+                newExercisesData.push(data);
+            }
+            
+            return {
+                ...prev,
+                [workoutId]: { ...workoutFeedback, exercisesData: newExercisesData }
+            };
+        });
+    };
 
     // Helper para embed de YouTube
     const getEmbedUrl = (url) => {
@@ -111,22 +151,34 @@ const MiPlan = () => {
                             </button>
 
                             {/* Contenido Desplegable (Ejercicios) */}
-                            {isExpanded && (
-                                <div className="border-t border-gray-100 bg-gray-50/50 p-4 space-y-6 animate-fade-in">
-                                    {workout.exercises.map((item, idx) => (
-                                        <ExerciseCard key={idx} item={item} index={idx} />
-                                    ))}
+                            <div className={`border-t border-gray-100 bg-gray-50/50 p-4 space-y-6 animate-fade-in ${isExpanded ? 'block' : 'hidden'}`}>
+                                {workout.exercises.map((item, idx) => {
+                                    const feedbackForWorkout = todaysFeedback[workout._id];
+                                    const exerciseFeedback = feedbackForWorkout?.exercisesData?.find(
+                                        ex => ex.exerciseId === item.exercise?._id
+                                    );
+                                    
+                                    return (
+                                        <ExerciseCard 
+                                            key={idx} 
+                                            item={item} 
+                                            index={idx} 
+                                            workoutId={workout._id} 
+                                            initialData={exerciseFeedback}
+                                            onFeedbackUpdate={(data) => handleFeedbackUpdate(workout._id, data)}
+                                        />
+                                    );
+                                })}
 
-                                    {/* BOTÓN FINALIZAR ENTRENAMIENTO */}
-                                    <button 
-                                        onClick={() => handleOpenFeedback(workout)}
-                                        className="w-full bg-brand-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-brand-primary-light transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2"
-                                    >
-                                        <CheckCircle size={24} />
-                                        ¡He terminado por hoy!
-                                    </button>
-                                </div>
-                            )}
+                                {/* BOTÓN FINALIZAR ENTRENAMIENTO */}
+                                <button 
+                                    onClick={() => handleOpenFeedback(workout)}
+                                    className="w-full bg-brand-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-brand-primary-light transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2"
+                                >
+                                    <CheckCircle size={24} />
+                                    ¡He terminado por hoy!
+                                </button>
+                            </div>
                         </div>
                     );
                 })}
@@ -139,15 +191,71 @@ const MiPlan = () => {
                 workoutId={selectedWorkoutForFeedback?._id}
                 workoutTitle={selectedWorkoutForFeedback?.title}
                 exercises={selectedWorkoutForFeedback?.exercises || []}
+                feedbackData={todaysFeedback[selectedWorkoutForFeedback?._id]}
                 onSaved={handleFeedbackSaved}
             />
         </div>
     );
 };
 
-const ExerciseCard = ({ item, index }) => {
+const ExerciseCard = ({ item, index, workoutId, initialData, onFeedbackUpdate }) => {
     // Si hay imagen, mostramos imagen por defecto. Si no, intentamos mostrar video.
     const [showVideo, setShowVideo] = useState(!item.exercise?.image);
+    
+    // Estados locales para feedback inmediato
+    const [weight, setWeight] = useState('');
+    const [rpe, setRpe] = useState('');
+    const [notes, setNotes] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
+
+    // Cargar datos iniciales
+    useEffect(() => {
+        if (initialData) {
+            setWeight(initialData.weightUsed || '');
+            setRpe(initialData.rpe || '');
+            setNotes(initialData.notes || '');
+        }
+    }, [initialData]);
+
+    const handleSave = async () => {
+        if (!weight && !rpe && !notes) return; // Nada que guardar
+
+        setSaving(true);
+        try {
+            await axios.post(`${API_URL}/api/client/feedback`, {
+                workoutId,
+                exercisesData: [{
+                    exerciseId: item.exercise?._id,
+                    exerciseName: item.exercise?.name,
+                    weightUsed: weight,
+                    rpe: rpe ? Number(rpe) : undefined,
+                    notes: notes
+                }]
+            }, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            
+            setSaved(true);
+            setTimeout(() => setSaved(false), 3000);
+            
+            // Notificar al padre para actualizar estado global (por si abren modal o colapsan)
+            if (onFeedbackUpdate) {
+                onFeedbackUpdate({
+                    exerciseId: item.exercise?._id,
+                    weightUsed: weight,
+                    rpe: rpe ? Number(rpe) : undefined,
+                    notes: notes
+                });
+            }
+
+        } catch (error) {
+            console.error("Error saving exercise feedback:", error);
+            alert("No se pudo guardar. Intenta de nuevo.");
+        } finally {
+            setSaving(false);
+        }
+    };
     
     const getEmbedUrl = (url) => {
         if (!url) return null;
@@ -250,8 +358,61 @@ const ExerciseCard = ({ item, index }) => {
                     </div>
                 </div>
 
+                 {/* *** NUEVO: AREA DE REGISTRO *** */}
+                 <div className="mt-4 bg-brand-bg/30 p-3 rounded-lg border border-brand-bg">
+                    <div className="flex justify-between items-center mb-2">
+                         <h5 className="font-bold text-xs text-brand-primary uppercase tracking-wide">Registro de Ejecución</h5>
+                         {saved && <span className="text-green-600 text-[10px] font-bold flex items-center gap-1 animate-fade-in"><Check size={12} /> Guardado</span>}
+                    </div>
+                    
+                    <div className="flex flex-col gap-3">
+                        <div className="flex gap-2">
+                             <div className="flex-1">
+                                <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Carga</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Ej: 20kg" 
+                                    className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-brand-primary outline-none"
+                                    value={weight}
+                                    onChange={(e) => setWeight(e.target.value)}
+                                />
+                             </div>
+                             <div className="w-20">
+                                <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">RPE (1-10)</label>
+                                <input 
+                                    type="number" 
+                                    min="1" max="10" 
+                                    className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-brand-primary outline-none"
+                                    value={rpe}
+                                    onChange={(e) => setRpe(e.target.value)}
+                                />
+                             </div>
+                        </div>
+                        <div className="flex gap-2 items-end">
+                            <div className="flex-1">
+                                <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Notas / Sensaciones</label>
+                                <input 
+                                    type="text"
+                                    placeholder="Notas opcionales..."
+                                    className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-brand-primary outline-none"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                />
+                            </div>
+                            <button 
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="bg-brand-primary text-white p-2 rounded-lg hover:bg-brand-primary-light transition-colors flex items-center justify-center disabled:opacity-50 h-[38px] w-[38px] shrink-0"
+                                title="Guardar Progreso"
+                            >
+                                {saving ? <span className="animate-spin text-xs">...</span> : <Save size={20} />}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Notas e Instrucciones */}
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm mt-3">
                     {item.notes && (
                         <p className="text-brand-action bg-yellow-50 p-2 rounded border border-yellow-100 flex gap-2 items-start">
                             <Info size={16} className="shrink-0 mt-0.5" />

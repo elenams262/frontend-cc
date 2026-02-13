@@ -4,12 +4,33 @@ import { X, Check } from 'lucide-react';
 import { useState } from 'react';
 import axios from 'axios';
 
-const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, exercises = [], onSaved }) => {
+const FeedbackModal = ({ isOpen, onClose, workoutId, workoutTitle, exercises = [], feedbackData, onSaved }) => {
     const [rpe, setRpe] = useState(5);
     const [comments, setComments] = useState('');
     const [saving, setSaving] = useState(false);
     // Estado para guardar el peso de cada ejercicio. Key: exerciseId, Value: weight
     const [weights, setWeights] = useState({});
+
+    // Cargar datos existentes si los hay
+    useEffect(() => {
+        if (isOpen && feedbackData) {
+            setRpe(feedbackData.rpe || 5);
+            setComments(feedbackData.comments || '');
+            
+            const initialWeights = {};
+            if (feedbackData.exercisesData) {
+                feedbackData.exercisesData.forEach(ex => {
+                    initialWeights[ex.exerciseId] = ex.weightUsed || '';
+                });
+            }
+            setWeights(initialWeights);
+        } else if (isOpen && !feedbackData) {
+            // Reset si no hay datos previos
+            setRpe(5);
+            setComments('');
+            setWeights({});
+        }
+    }, [isOpen, feedbackData]);
 
     if (!isOpen) return null;
 
