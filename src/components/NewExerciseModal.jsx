@@ -1,7 +1,7 @@
 import { API_URL } from '../config/api';
 import { getImageUrl } from '../utils/imageUtils';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Save, Video, Tag, Image, Crop as CropIcon } from 'lucide-react';
+import { X, Save, Video, Tag, Image as ImageIcon, Crop as CropIcon } from 'lucide-react';
 import axios from 'axios';
 import Cropper from 'react-easy-crop';
 
@@ -110,7 +110,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
 
   const createImage = (url) =>
     new Promise((resolve, reject) => {
-      const image = new Image();
+      const image = new window.Image();
       image.addEventListener('load', () => resolve(image));
       image.addEventListener('error', (error) => reject(error));
       image.setAttribute('crossOrigin', 'anonymous'); 
@@ -211,7 +211,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
                         onClick={() => fileInputRef.current.click()}
                         className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
                      >
-                        <Image size={18} />
+                        <ImageIcon size={18} />
                         {imageSrc ? 'Cambiar Imagen' : 'Subir Imagen de Portada'}
                      </button>
                      <input 
