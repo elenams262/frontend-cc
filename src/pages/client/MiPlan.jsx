@@ -74,6 +74,36 @@ const MiPlan = () => {
         });
     };
 
+    const handleCompleteWorkout = async (workout) => {
+        if (!window.confirm("¿Has terminado el entrenamiento de hoy? Esto moverá esta rutina al final de tu lista.")) return;
+
+        try {
+            // Calcular el nuevo orden: encontrar el máximo orden actual y sumar 10
+            const maxOrder = workouts.reduce((max, w) => w.order > max ? w.order : max, 0);
+            const newOrder = maxOrder + 10;
+
+            // Actualizar en backend (usamos el endpoint de reorder pero solo para este workout)
+            const updates = [{ _id: workout._id, order: newOrder }];
+            
+            await axios.put(`${API_URL}/api/client/workouts/reorder`, { updates }, {
+                 headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+
+            // Actualizar estado local
+            const updatedWorkouts = workouts.map(w => 
+                w._id === workout._id ? { ...w, order: newOrder } : w
+            ).sort((a, b) => a.order - b.order);
+            
+            setWorkouts(updatedWorkouts);
+            setExpandedWorkout(null); // Cerrar acordeón
+            alert("¡Entrenamiento completado! 💪");
+
+        } catch (error) {
+            console.error("Error al completar entrenamiento:", error);
+            alert("Error al actualizar el orden de la rutina.");
+        }
+    };
+
     // Helper para embed de YouTube
     const getEmbedUrl = (url) => {
         if (!url) return null;
@@ -156,8 +186,17 @@ const MiPlan = () => {
                                     );
                                 })}
 
-                                {/* BOTÓN FINALIZAR ENTRENAMIENTO */}
 
+                                {/* BOTÓN FINALIZAR ENTRENAMIENTO */}
+                                <div className="pt-4 border-t border-gray-200 flex justify-center">
+                                    <button 
+                                        onClick={() => handleCompleteWorkout(workout)}
+                                        className="bg-brand-primary text-white py-3 px-6 rounded-xl font-bold text-lg shadow-lg hover:bg-brand-primary-light transition-all transform hover:scale-[1.02] flex items-center gap-2"
+                                    >
+                                        <CheckCircle size={24} />
+                                        Terminar Entrenamiento
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     );
