@@ -473,7 +473,9 @@ const FeedbackList = ({ clientId }) => {
         const fetchFeedback = async () => {
             try {
                 const res = await axios.get(`${API_URL}/api/admin/feedback/${clientId}`);
-                setLogs(res.data);
+                // Ordenar por fecha descendente
+                const sortedLogs = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setLogs(sortedLogs);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -488,40 +490,79 @@ const FeedbackList = ({ clientId }) => {
 
     return (
         <div className="space-y-4">
-            {logs.map(log => (
-                <div key={log._id} className="bg-white border-l-4 border-brand-secondary p-4 rounded shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 className="font-bold text-gray-800">{log.workout?.title || "Rutina Eliminada"}</h4>
-                            <p className="text-xs text-gray-500">{new Date(log.date).toLocaleString()}</p>
-                        </div>
-                        <div className={`px-3 py-1 rounded font-bold text-sm ${log.rpe > 8 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`}>
-                            RPE: {log.rpe}/10
-                        </div>
-                    </div>
-                    {log.comments && (
-                        <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 mt-2 italic">
-                            "{log.comments}"
-                        </div>
-                    )}
-                    {/* Visualización de Cargas (si existen) */}
-                    {log.exercisesData && log.exercisesData.length > 0 && (
-                        <div className="mt-3 border-t border-gray-100 pt-2">
-                            <p className="text-xs font-bold text-gray-500 mb-2 uppercase">Cargas / Pesos Utilizados:</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {log.exercisesData.map((exData, idx) => (
-                                    exData.weightUsed && (
-                                        <div key={idx} className="flex justify-between text-xs bg-gray-50 p-2 rounded border border-gray-100">
-                                            <span className="text-gray-600 truncate mr-2">{exData.exerciseName || "Ejercicio"}</span>
-                                            <span className="font-bold text-brand-primary whitespace-nowrap">{exData.weightUsed}</span>
-                                        </div>
-                                    )
-                                ))}
+            {logs.map(log => {
+                // Calcular RPE Medio si hay datos desglosados
+                let averageRpe = log.rpe; // Valor global legado
+                if (log.exercisesData && log.exercisesData.length > 0) {
+                    const rpeValues = log.exercisesData
+                        .map(e => e.rpe)
+                        .filter(r => r !== undefined && r !== null && !isNaN(r));
+                    
+                    if (rpeValues.length > 0) {
+                        const sum = rpeValues.reduce((a, b) => a + b, 0);
+                        averageRpe = (sum / rpeValues.length).toFixed(1);
+                    }
+                }
+
+                return (
+                    <div key={log._id} className="bg-white border-l-4 border-brand-secondary p-4 rounded shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 className="font-bold text-gray-800">{log.workout?.title || "Rutina Eliminada"}</h4>
+                                <p className="text-xs text-gray-500">{new Date(log.date).toLocaleString()}</p>
+                            </div>
+                            <div className={`px-3 py-1 rounded font-bold text-sm ${averageRpe > 8 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`}>
+                                RPE Medio: {averageRpe || '-'}/10
                             </div>
                         </div>
-                    )}
-                </div>
-            ))}
+                        
+                        {log.comments && (
+                            <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 mt-2 italic border border-gray-100">
+                                <span className="font-bold text-xs text-gray-400 block mb-1">COMENTARIOS GENERALES:</span>
+                                "{log.comments}"
+                            </div>
+                        )}
+
+                        {/* Visualización de Cargas y RPE por Ejercicio */}
+                        {log.exercisesData && log.exercisesData.length > 0 && (
+                            <div className="mt-4">
+                                <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide border-b border-gray-100 pb-1">Detalle por Ejercicio:</p>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {log.exercisesData.map((exData, idx) => (
+                                        (exData.weightUsed || exData.rpe || exData.notes) && (
+                                            <div key={idx} className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <span className="font-bold text-brand-primary">{exData.exerciseName || "Ejercicio"}</span>
+                                                    {exData.rpe && (
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${exData.rpe > 8 ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-600'}`}>
+                                                            RPE: {exData.rpe}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
+                                                    {exData.weightUsed && (
+                                                        <span className="flex items-center gap-1">
+                                                            <Dumbbell size={12} className="text-gray-400"/> 
+                                                            Peso: <span className="font-semibold text-gray-800">{exData.weightUsed}</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                
+                                                {exData.notes && (
+                                                    <p className="text-xs text-gray-500 italic mt-1 border-t border-gray-200 pt-1">
+                                                        "{exData.notes}"
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 };
