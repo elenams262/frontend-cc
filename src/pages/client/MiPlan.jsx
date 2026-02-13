@@ -2,7 +2,7 @@ import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, ChevronUp, PlayCircle, Clock, Info, CheckCircle, Save, Check } from 'lucide-react';
 import axios from 'axios';
-import FeedbackModal from '../../components/FeedbackModal';
+
 import { getImageUrl } from '../../utils/imageUtils';
 
 const MiPlan = () => {
@@ -82,19 +82,7 @@ const MiPlan = () => {
         return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
     };
 
-    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-    const [selectedWorkoutForFeedback, setSelectedWorkoutForFeedback] = useState(null);
-    const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
-    const handleOpenFeedback = (workout) => {
-        setSelectedWorkoutForFeedback(workout);
-        setShowFeedbackModal(true);
-    };
-
-    const handleFeedbackSaved = () => {
-        setShowSuccessBanner(true);
-        setTimeout(() => setShowSuccessBanner(false), 5000); // Ocultar banner a los 5s
-    };
 
     if (loading) return <div className="p-8 text-center text-gray-400">Cargando tu plan...</div>;
     
@@ -119,12 +107,7 @@ const MiPlan = () => {
     return (
         <div className="space-y-6 pb-20 relative">
             {/* Banner de Éxito */}
-            {showSuccessBanner && (
-                <div className="fixed top-4 left-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-lg z-50 flex items-center justify-center gap-2 animate-bounce">
-                    <CheckCircle size={24} />
-                    <span className="font-bold">¡Entrenamiento Guardado! 💪</span>
-                </div>
-            )}
+
 
             <header>
                 <h1 className="text-2xl font-bold text-brand-primary">Mi Plan Actual</h1>
@@ -174,13 +157,7 @@ const MiPlan = () => {
                                 })}
 
                                 {/* BOTÓN FINALIZAR ENTRENAMIENTO */}
-                                <button 
-                                    onClick={() => handleOpenFeedback(workout)}
-                                    className="w-full bg-brand-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-brand-primary-light transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2"
-                                >
-                                    <CheckCircle size={24} />
-                                    ¡He terminado por hoy!
-                                </button>
+
                             </div>
                         </div>
                     );
@@ -188,15 +165,7 @@ const MiPlan = () => {
             </div>
 
             {/* MODAL DE FEEDBACK */}
-            <FeedbackModal 
-                isOpen={showFeedbackModal}
-                onClose={() => setShowFeedbackModal(false)}
-                workoutId={selectedWorkoutForFeedback?._id}
-                workoutTitle={selectedWorkoutForFeedback?.title}
-                exercises={selectedWorkoutForFeedback?.exercises || []}
-                feedbackData={todaysFeedback[selectedWorkoutForFeedback?._id]}
-                onSaved={handleFeedbackSaved}
-            />
+
         </div>
     );
 };
