@@ -1,4 +1,5 @@
 import { API_URL } from '../config/api';
+import { getImageUrl } from '../utils/imageUtils';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Save, Video, Tag, Image, Crop as CropIcon } from 'lucide-react';
 import axios from 'axios';
@@ -35,12 +36,24 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
             instructions: exerciseToEdit.instructions || '',
             tags: exerciseToEdit.tags ? exerciseToEdit.tags.join(', ') : ''
         });
+
+        // Cargar imagen existente para editar recorte si existe
+        if (exerciseToEdit.image) {
+            const fullImageUrl = getImageUrl(exerciseToEdit.image);
+            setImageSrc(fullImageUrl);
+            setIsCropping(true); 
+            setCrop({ x: 0, y: 0 });
+            setZoom(1);
+        } else {
+            setImageSrc(null);
+            setIsCropping(false);
+        }
+
       } else {
         setFormData({ name: '', category: 'Movilidad', videoUrl: '', instructions: '', tags: '' });
+        setImageSrc(null);
+        setIsCropping(false);
       }
-      // Resetear imagen al abrir
-      setImageSrc(null);
-      setIsCropping(false);
     }
   }, [isOpen, exerciseToEdit]);
 
@@ -101,7 +114,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
       image.addEventListener('load', () => resolve(image));
       image.addEventListener('error', (error) => reject(error));
       image.setAttribute('crossOrigin', 'anonymous'); 
-      image.src = url;
+      image.src = url + '?' + new Date().getTime(); // Avoid cache for CORS
     });
 
   const handleSubmit = async (e) => {
@@ -139,8 +152,8 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
       onExerciseCreated();
       onClose();
     } catch (error) {
-      console.error(error);
-      alert("Error al guardar ejercicio");
+      console.error("Error saving exercise:", error.response?.data || error.message);
+      alert(`Error al guardar ejercicio: ${error.response?.data?.msg || error.message}`);
     } finally {
       setLoading(false);
     }
