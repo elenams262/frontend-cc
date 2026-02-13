@@ -391,7 +391,7 @@ const CalibranteDetalle = () => {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {workouts.map(workout => {
+                            {workouts.map((workout, index) => {
                                 const isExpanded = expandedWorkout === workout._id;
                                 return (
                                     <div key={workout._id} className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
