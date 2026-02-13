@@ -102,8 +102,12 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
     );
 
     return new Promise((resolve, reject) => {
-      canvas.toBlob((file) => {
-        resolve(file);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+            reject(new Error("Error al crear blob de imagen (posible tema de CORS)"));
+            return;
+        }
+        resolve(blob);
       }, 'image/jpeg');
     });
   };
@@ -112,7 +116,7 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
     new Promise((resolve, reject) => {
       const image = new window.Image();
       image.addEventListener('load', () => resolve(image));
-      image.addEventListener('error', (error) => reject(error));
+      image.addEventListener('error', (error) => reject(new Error(`No se pudo cargar la imagen`)));
       image.setAttribute('crossOrigin', 'anonymous'); 
       image.src = url + '?' + new Date().getTime(); // Avoid cache for CORS
     });
@@ -133,8 +137,26 @@ const NewExerciseModal = ({ isOpen, onClose, onExerciseCreated, exerciseToEdit }
 
       // Procesar la imagen recortada si existe
       if (imageSrc && isCropping && croppedAreaPixels) {
-         const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
-         data.append('image', croppedImageBlob, 'exercise-cover.jpg');
+         try {
+            const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+            data.append('image', croppedImageBlob, 'exercise-cover.jpg');
+         } catch (e) {
+            console.error("Error cropping image:", e);
+            // If CORS fails, fall back to not sending image? 
+            // Or maybe the user didn't change the image?
+            // If it is an edit and we are just re-cropping the existing image, and it fails, we might just want to skip sending 'image' so the backend keeps the old one.
+            // But if it's a NEW image upload + crop, skipping means no image.
+            
+            // If the imageSrc is a blob:url (new upload), it shouldn't fail CORS.
+            // If the imageSrc is http... (existing image), it MIGHT fail CORS.
+            
+            if (imageSrc.startsWith('http')) {
+                console.warn("Could not crop existing image due to CORS. Skipping image update.");
+                // We do NOT append 'image', so backend keeps the current one.
+            } else {
+                 throw new Error("Fallo al recortar la imagen local: " + e.message);
+            }
+         }
       }
 
       if (exerciseToEdit) {
