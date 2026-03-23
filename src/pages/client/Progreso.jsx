@@ -1,11 +1,12 @@
 import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
-import { Activity, Calendar, Trophy, TrendingUp } from 'lucide-react';
+import { Activity, Calendar, Trophy, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
 
 const Progreso = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [expandedLog, setExpandedLog] = useState(null);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -77,10 +78,17 @@ const Progreso = () => {
                     </div>
                 ) : (
                     logs.map(log => (
-                        <div key={log._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-transform active:scale-[0.99]">
+                        <div 
+                            key={log._id} 
+                            onClick={() => setExpandedLog(expandedLog === log._id ? null : log._id)}
+                            className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-transform cursor-pointer hover:shadow-md"
+                        >
                             <div className="flex justify-between items-start mb-2">
                                 <div>
-                                    <h3 className="font-bold text-brand-primary">{log.workout?.title || "Rutina Archivada"}</h3>
+                                    <h3 className="font-bold text-brand-primary flex items-center gap-2">
+                                        {log.workout?.title || "Rutina Archivada"}
+                                        {expandedLog === log._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </h3>
                                     <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                                         <Calendar size={12} /> {new Date(log.date).toLocaleDateString()} 
                                         <span className="mx-1">·</span> 
@@ -98,6 +106,34 @@ const Progreso = () => {
                             {log.comments && (
                                 <div className="mt-3 bg-gray-50 p-3 rounded-lg text-sm text-gray-600 italic border-l-2 border-brand-secondary/30">
                                     "{log.comments}"
+                                </div>
+                            )}
+
+                            {expandedLog === log._id && log.exercisesData && log.exercisesData.length > 0 && (
+                                <div className="mt-4 border-t border-gray-100 pt-4 space-y-3">
+                                    <h4 className="text-sm font-bold text-gray-700">Detalles por Ejercicio</h4>
+                                    {log.exercisesData.map((ex, idx) => (
+                                        <div key={idx} className="bg-gray-50 p-3 rounded-lg flex flex-col gap-1">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-semibold text-gray-800 text-sm">{ex.exerciseName || "Ejercicio"}</span>
+                                                {ex.rpe && (
+                                                    <span className="text-xs bg-white px-2 py-1 rounded border border-gray-200 text-gray-600 font-bold">
+                                                        RPE {ex.rpe}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {ex.weightUsed && (
+                                                <p className="text-xs text-gray-600">
+                                                    <span className="font-semibold">Peso/Resistencia:</span> {ex.weightUsed}
+                                                </p>
+                                            )}
+                                            {ex.notes && (
+                                                <p className="text-xs text-gray-500 italic mt-1">
+                                                    Nota: {ex.notes}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
