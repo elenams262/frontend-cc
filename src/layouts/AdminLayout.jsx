@@ -136,9 +136,15 @@ const AdminLayout = () => {
       </aside>
 
       {/* 🟡 CONTENIDO PRINCIPAL (Variable) */}
-      <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto pb-24 md:pb-8">
+      <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto pb-24 md:pb-8 flex flex-col justify-between">
         {/* Aquí se cargará la página que toque (Outlet) */}
-        <Outlet /> 
+        <div>
+            <Outlet /> 
+        </div>
+
+        <footer className="mt-12 text-center text-[11px] text-gray-400">
+            App desarrollada por <a href="https://www.shodomarketing.com/trabajos/" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-semibold hover:underline">Shodo Marketing y Eventos</a>
+        </footer>
       </main>
 
       {/* 📱 MOBILE BOTTOM NAVIGATION */}

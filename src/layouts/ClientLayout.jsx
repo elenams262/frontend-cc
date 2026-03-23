@@ -34,10 +34,14 @@ const ClientLayout = () => {
             </header>
 
             {/* Contenido Principal (Scrollable) */}
-            <main className="flex-1 overflow-y-auto pb-24 animate-fade-in">
-                <div className="max-w-md mx-auto p-4">
+            <main className="flex-1 overflow-y-auto pb-24 animate-fade-in flex flex-col justify-between">
+                <div className="max-w-md mx-auto p-4 w-full">
                     <Outlet />
                 </div>
+
+                <footer className="mt-8 mb-4 text-center text-[11px] text-gray-400 w-full px-4">
+                    App desarrollada por <a href="https://www.shodomarketing.com/trabajos/" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-semibold hover:underline">Shodo Marketing y Eventos</a>
+                </footer>
             </main>
 
             {/* Bottom Navigation (Estilo App Móvil) */}
