@@ -40,7 +40,7 @@ const ClientLayout = () => {
                 </div>
 
                 <footer className="mt-8 mb-4 text-center text-[11px] text-gray-400 w-full px-4">
-                    App desarrollada por <a href="https://www.shodomarketing.com/trabajos/" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-semibold hover:underline">Shodo Marketing y Eventos</a>
+                    App desarrollada por <a href="https://www.shodomarketing.com" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-semibold hover:underline">Shodo Marketing y Eventos</a>
                 </footer>
             </main>
 

@@ -143,7 +143,7 @@ const AdminLayout = () => {
         </div>
 
         <footer className="mt-12 text-center text-[11px] text-gray-400">
-            App desarrollada por <a href="https://www.shodomarketing.com/trabajos/" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-semibold hover:underline">Shodo Marketing y Eventos</a>
+            App desarrollada por <a href="https://www.shodomarketing.com" target="_blank" rel="noopener noreferrer" className="text-brand-primary font-semibold hover:underline">Shodo Marketing y Eventos</a>
         </footer>
       </main>
 
